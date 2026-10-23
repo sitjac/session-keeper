@@ -396,6 +396,9 @@ export function SessionListPane(props: {
                       type="button"
                     >
                       <span className="session-row-title">{sessionListTitle(session)}</span>
+                      <span className="session-row-source">
+                        {session.source === "claude" ? tt("sourceClaude") : tt("sourceCodex")}
+                      </span>
                     </button>
                     <button
                       aria-label={tt("sessionActions")}

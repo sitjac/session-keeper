@@ -57,6 +57,8 @@ const COPY = {
     thisMonth: "This Month",
     earlier: "Earlier",
     nA: "n/a",
+    sourceCodex: "Codex",
+    sourceClaude: "Claude",
   },
   "zh-CN": {
     sessions: "会话",
@@ -112,6 +114,8 @@ const COPY = {
     thisMonth: "本月",
     earlier: "更早",
     nA: "无",
+    sourceCodex: "Codex",
+    sourceClaude: "Claude",
   },
 } as const;
 

@@ -123,6 +123,11 @@ export function SessionDetailHeader(props: {
           )}
           <div className="chat-meta-bar">
             <span>{props.detail.cwd ?? props.detail.workspaceLabel}</span>
+            <span className="session-source-badge">
+              {props.detail.source === "claude"
+                ? props.tt("sourceClaude")
+                : props.tt("sourceCodex")}
+            </span>
             {props.detail.lastAppliedAt ? (
               <span>{formatWhen(props.detail.lastAppliedAt, props.uiLanguage)}</span>
             ) : props.detail.updatedAt ? (
