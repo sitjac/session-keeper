@@ -243,6 +243,7 @@ export async function writeCodexStateFixture(params: {
 export async function createManagerForTest(
   overrides: DeepPartial<EffectiveConfig> & {
     codexHome: string;
+    claudeHome?: string;
     stateDir: string;
     turnRunner?: CodexTurnRunner;
   },
@@ -250,6 +251,9 @@ export async function createManagerForTest(
   const workspaceRoot = path.dirname(overrides.codexHome);
   const configPath = path.join(workspaceRoot, ".config", "codex-keeper", "config.toml");
   const { codexHome, stateDir, turnRunner, ...configOverrides } = overrides;
+  // Default to an empty, non-existent Claude home so tests never pick up the
+  // real ~/.claude sessions unless a fixture is explicitly provided.
+  const claudeHome = overrides.claudeHome ?? path.join(workspaceRoot, ".claude-test");
   const manager = await CodexKeeper.create({
     cwd: workspaceRoot,
     configPath,
@@ -258,6 +262,7 @@ export async function createManagerForTest(
       general: {
         ...(configOverrides as Partial<EffectiveConfig>).general,
         codexHome,
+        claudeHome,
         stateDir,
       },
     },
@@ -265,4 +270,73 @@ export async function createManagerForTest(
     turnRunner,
   });
   return manager;
+}
+
+export async function writeClaudeSessionFixture(params: {
+  claudeHome: string;
+  cwd: string;
+  sessionId: string;
+  userMessage: string;
+  assistantMessage: string;
+  aiTitle?: string;
+  model?: string;
+}): Promise<string> {
+  const encodedCwd = `-${params.cwd.replace(/^\//, "").replace(/\//g, "-")}`;
+  const projectDir = path.join(params.claudeHome, "projects", encodedCwd);
+  await fs.mkdir(projectDir, { recursive: true });
+  const filePath = path.join(projectDir, `${params.sessionId}.jsonl`);
+  const lines = [
+    JSON.stringify({
+      type: "mode",
+      mode: "normal",
+      sessionId: params.sessionId,
+    }),
+    JSON.stringify({
+      type: "user",
+      message: { role: "user", content: params.userMessage },
+      timestamp: "2026-10-22T09:05:12.630Z",
+      cwd: params.cwd,
+      sessionId: params.sessionId,
+    }),
+    ...(params.aiTitle
+      ? [
+          JSON.stringify({
+            type: "ai-title",
+            aiTitle: params.aiTitle,
+            sessionId: params.sessionId,
+          }),
+        ]
+      : []),
+    JSON.stringify({
+      type: "assistant",
+      message: {
+        role: "assistant",
+        content: [{ type: "text", text: params.assistantMessage }],
+      },
+      requestedModel: params.model ?? "claude-model",
+      timestamp: "2026-10-22T09:05:16.538Z",
+      cwd: params.cwd,
+      sessionId: params.sessionId,
+    }),
+    JSON.stringify({
+      type: "last-prompt",
+      lastPrompt: params.userMessage,
+      sessionId: params.sessionId,
+    }),
+  ];
+  await fs.writeFile(filePath, `${lines.join("\n")}\n`, "utf8");
+
+  const historyPath = path.join(params.claudeHome, "history.jsonl");
+  await fs.appendFile(
+    historyPath,
+    `${JSON.stringify({
+      display: params.aiTitle ?? params.userMessage,
+      pastedContents: {},
+      timestamp: Date.now(),
+      project: params.cwd,
+      sessionId: params.sessionId,
+    })}\n`,
+    "utf8",
+  );
+  return filePath;
 }

@@ -4,6 +4,7 @@ import { DEFAULT_STATE_RELATIVE_PATH } from "@codex-keeper/shared";
 export const DEFAULT_CONFIG: EffectiveConfig = {
   general: {
     codexHome: "~/.codex",
+    claudeHome: "~/.claude",
     stateDir: `~/${DEFAULT_STATE_RELATIVE_PATH}`,
     uiLanguage: "zh-CN",
   },

@@ -115,6 +115,7 @@ export async function loadEffectiveConfig(options?: {
   return {
     general: {
       codexHome: expandHome(effective.general.codexHome ?? DEFAULT_CONFIG.general.codexHome),
+      claudeHome: expandHome(effective.general.claudeHome ?? DEFAULT_CONFIG.general.claudeHome),
       stateDir: explicitStateDir
         ? expandHome(explicitStateDir)
         : expandHome(`~/${DEFAULT_STATE_RELATIVE_PATH}`),

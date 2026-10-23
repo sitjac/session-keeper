@@ -18,6 +18,15 @@ import type {
   WorkspaceSummary,
 } from "@codex-keeper/shared";
 import { SESSION_INDEX_FILENAME } from "@codex-keeper/shared";
+import {
+  appendClaudeAiTitle,
+  claudeHistoryPath,
+  discoverClaudeSessionFiles,
+  ingestClaudeFile,
+  parseClaudeTranscript,
+  removeClaudeHistory,
+  updateClaudeHistory,
+} from "./claude/index.js";
 import type { CodexTurnRunner } from "./codex-runner.js";
 import { runCodexExecResume } from "./codex-runner.js";
 import { readCodexThreadStateSnapshot, updateCodexThreadTitle } from "./codex-state.js";
@@ -153,6 +162,8 @@ export class CodexKeeper {
   private lastScanResult: ScanReport = {
     scannedRollouts: 0,
     updatedSessions: 0,
+    scannedClaudeFiles: 0,
+    updatedClaudeSessions: 0,
   };
   private readonly activeSessionTurns = new Map<string, Promise<SessionMessageResponse>>();
   private readonly cwd: string;
@@ -200,6 +211,10 @@ export class CodexKeeper {
 
   get sessionIndexPath(): string {
     return path.join(this.config.general.codexHome, SESSION_INDEX_FILENAME);
+  }
+
+  get claudeProjectsRoot(): string {
+    return path.join(this.config.general.claudeHome, "projects");
   }
 
   get backupDir(): string {
@@ -327,9 +342,76 @@ export class CodexKeeper {
     }
 
     this.db.updateOfficialNames(snapshot.latestByThreadId, preserveThreadIds);
+    const claudeReport = await this.performClaudeScan();
     return {
       scannedRollouts: rolloutFiles.length,
       updatedSessions,
+      scannedClaudeFiles: claudeReport.scannedClaudeFiles,
+      updatedClaudeSessions: claudeReport.updatedClaudeSessions,
+    };
+  }
+
+  private async performClaudeScan(): Promise<{
+    scannedClaudeFiles: number;
+    updatedClaudeSessions: number;
+  }> {
+    const claudeFiles = await discoverClaudeSessionFiles(this.config.general.claudeHome);
+    let updatedClaudeSessions = 0;
+
+    for (const file of claudeFiles) {
+      const stat = await fs.stat(file.path);
+      const previous = this.db.getSessionByRolloutPath(file.path);
+      const previousCursor = this.db.getCursor(file.path);
+      const result = await ingestClaudeFile({
+        path: file.path,
+        stat,
+        previousSession: previous,
+        previousCursor: previousCursor ? { rolloutPath: file.path, ...previousCursor } : undefined,
+      });
+      if (!result.session) {
+        continue;
+      }
+
+      // Claude session ids come from the file name; ensure the decoded cwd is set.
+      result.session.threadId = file.sessionId;
+      result.session.cwd = result.session.cwd ?? file.cwd;
+      result.session.projectName = result.session.projectName ?? basenameSafe(file.cwd);
+
+      const renameState = this.db.getRenameState(result.session.threadId);
+      const officialName =
+        renameState?.lastAppliedSource === "manual" && renameState.lastAppliedName
+          ? {
+              threadName: renameState.lastAppliedName,
+              updatedAt: renameState.lastAppliedAt,
+            }
+          : result.session.threadName
+            ? {
+                threadName: result.session.threadName,
+                updatedAt: result.session.threadNameUpdatedAt,
+              }
+            : undefined;
+
+      const previousRevision = this.db.getRevision(result.session.threadId);
+      const revision = buildSessionRevision(
+        result.session,
+        {
+          sizeBytes: stat.size,
+          mtime: stat.mtime.toISOString(),
+        },
+        previousRevision,
+      );
+      this.db.upsertSession({
+        session: result.session,
+        officialName,
+        revision,
+        cursor: result.cursor,
+      });
+      updatedClaudeSessions += 1;
+    }
+
+    return {
+      scannedClaudeFiles: claudeFiles.length,
+      updatedClaudeSessions,
     };
   }
 
@@ -376,7 +458,7 @@ export class CodexKeeper {
     }
     return {
       ...detail,
-      transcript: await this.readCachedSessionTranscript(detail.rolloutPath),
+      transcript: await this.readCachedSessionTranscript(detail.rolloutPath, detail.source),
     };
   }
 
@@ -391,7 +473,7 @@ export class CodexKeeper {
     },
   ): Promise<SessionTranscriptPage> {
     const detail = await this.requireKnownSessionDetail(threadId);
-    const transcript = await this.readCachedSessionTranscript(detail.rolloutPath);
+    const transcript = await this.readCachedSessionTranscript(detail.rolloutPath, detail.source);
     return paginateSessionTranscript(transcript, {
       ...options,
     });
@@ -422,6 +504,12 @@ export class CodexKeeper {
 
   private async runSessionTurn(threadId: string, prompt: string): Promise<SessionMessageResponse> {
     const detail = await this.requireKnownSessionDetail(threadId);
+    if (detail.source !== "codex") {
+      throw new CodexKeeperRequestError(
+        `Continuing ${detail.source} sessions is not supported yet.`,
+        400,
+      );
+    }
     const startedAt = Date.now();
     const cwd = await this.resolveTurnCwd(detail.cwd);
 
@@ -456,6 +544,10 @@ export class CodexKeeper {
     const nextName = name.trim();
     if (!nextName) {
       throw new Error("Session name cannot be empty.");
+    }
+
+    if (detail.source === "claude") {
+      return this.renameClaudeSession(threadId, nextName, detail);
     }
 
     const indexResult = await appendSessionIndexRename({
@@ -517,6 +609,42 @@ export class CodexKeeper {
       written,
       name: indexResult.entry.threadName,
     };
+  }
+
+  private async renameClaudeSession(
+    threadId: string,
+    nextName: string,
+    detail: SessionDetail,
+  ): Promise<{ written: boolean; name: string }> {
+    const appliedAt = toUtcIso();
+
+    await appendClaudeAiTitle({
+      filePath: detail.rolloutPath,
+      sessionId: threadId,
+      title: nextName,
+    });
+    this.invalidateTranscriptCache(detail.rolloutPath);
+
+    await updateClaudeHistory({
+      historyPath: claudeHistoryPath(this.config.general.claudeHome),
+      sessionId: threadId,
+      title: nextName,
+    });
+
+    const written = true;
+    this.db.recordRename({
+      threadId,
+      newName: nextName,
+      source: "manual",
+      kind: "manual",
+      status: "applied",
+      operator: this.operator,
+      appliedAt,
+      appliedRevision: detail.revision,
+      persistAppliedState: true,
+    });
+
+    return { written, name: nextName };
   }
 
   private deferCodexThreadTitleUpdate(params: {
@@ -607,6 +735,20 @@ export class CodexKeeper {
 
     await fs.rm(detail.rolloutPath, { force: true });
     this.invalidateTranscriptCache(detail.rolloutPath);
+
+    if (detail.source === "claude") {
+      const historyRemoval = await removeClaudeHistory({
+        historyPath: claudeHistoryPath(this.config.general.claudeHome),
+        sessionId: threadId,
+      });
+      return {
+        threadId,
+        deleted: true,
+        rolloutPath: detail.rolloutPath,
+        removedIndexEntries: historyRemoval.removed,
+      };
+    }
+
     const indexRemoval = await removeSessionIndexThread({
       filePath: this.sessionIndexPath,
       threadId,
@@ -682,7 +824,10 @@ export class CodexKeeper {
     return this.requireSessionDetail(threadId);
   }
 
-  private async readCachedSessionTranscript(rolloutPath: string): Promise<SessionTranscript> {
+  private async readCachedSessionTranscript(
+    rolloutPath: string,
+    source: "codex" | "claude" = "codex",
+  ): Promise<SessionTranscript> {
     const stat = await fs.stat(rolloutPath);
     const cached = this.transcriptCache.get(rolloutPath);
     if (cached && cached.size === stat.size && cached.mtimeMs === stat.mtimeMs) {
@@ -692,7 +837,8 @@ export class CodexKeeper {
     }
 
     const raw = await fs.readFile(rolloutPath, "utf8");
-    const transcript = parseSessionTranscript(raw);
+    const transcript =
+      source === "claude" ? parseClaudeTranscript(raw) : parseSessionTranscript(raw);
     this.transcriptCache.set(rolloutPath, {
       size: stat.size,
       mtimeMs: stat.mtimeMs,

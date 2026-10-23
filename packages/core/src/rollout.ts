@@ -441,6 +441,7 @@ export async function ingestRolloutFile(params: {
     : {
         threadId: "",
         rolloutPath: params.rolloutPath,
+        source: "codex",
         taskCompleteCount: 0,
         tokenTotal: 0,
       };
