@@ -1,15 +1,15 @@
 {
-  "name": "@codex-keeper/cli",
+  "name": "@session-keeper/cli",
   "version": "0.1.0",
   "type": "module",
   "bin": {
-    "codex-keeper": "./dist/index.js"
+    "session-keeper": "./dist/index.js"
   },
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "dependencies": {
-    "@codex-keeper/api": "0.1.0",
-    "@codex-keeper/core": "0.1.0",
+    "@session-keeper/api": "0.1.0",
+    "@session-keeper/core": "0.1.0",
     "cac": "^6.7.14"
   }
 }

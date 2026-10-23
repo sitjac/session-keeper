@@ -1,7 +1,7 @@
 import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
-import { CodexKeeper } from "@codex-keeper/core";
+import { SessionKeeper } from "@session-keeper/core";
 import { describe, expect, it } from "vitest";
 
 import { createTempWorkspace, writeClaudeSessionFixture } from "./helpers.js";
@@ -20,7 +20,7 @@ describe("claude session management", () => {
       aiTitle: "看看项目",
     });
 
-    const manager = await CodexKeeper.create({
+    const manager = await SessionKeeper.create({
       cwd: workspace.root,
       overrides: {
         general: {
@@ -81,7 +81,7 @@ describe("claude session management", () => {
       assistantMessage: "hello",
     });
 
-    const manager = await CodexKeeper.create({
+    const manager = await SessionKeeper.create({
       cwd: workspace.root,
       overrides: {
         general: {

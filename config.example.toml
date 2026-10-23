@@ -1,4 +1,4 @@
-# Copy this file to ~/.config/codex-keeper/config.toml and edit from there.
+# Copy this file to ~/.config/session-keeper/config.toml and edit from there.
 # This starter config only controls local session manager paths and UI language.
 
 [general]
@@ -8,8 +8,8 @@ codex_home = "~/.codex"
 # Claude CLI home. Keep the default to manage Claude Code sessions too.
 claude_home = "~/.claude"
 
-# sitJac/codex-keeper keeps its own SQLite state and runtime files here.
-state_dir = "~/.local/state/codex-keeper"
+# session-keeper keeps its own SQLite state and runtime files here.
+state_dir = "~/.local/state/session-keeper"
 
 # UI language for Web and CLI messages.
 ui_language = "zh-CN"

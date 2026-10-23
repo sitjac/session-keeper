@@ -1,18 +1,18 @@
-import type { CodexKeeper } from "@codex-keeper/core";
+import type { SessionKeeper } from "@session-keeper/core";
 import {
   renameRequestSchema,
   sessionDetailQuerySchema,
   sessionListQuerySchema,
   sessionMessageRequestSchema,
   sessionTranscriptQuerySchema,
-} from "@codex-keeper/shared";
+} from "@session-keeper/shared";
 import type { FastifyInstance } from "fastify";
 
 import type { ApiEventLog } from "../event-log.js";
 
 export function registerSessionRoutes(
   app: FastifyInstance,
-  manager: CodexKeeper,
+  manager: SessionKeeper,
   eventLog: ApiEventLog,
 ) {
   app.get("/api/v1/config", async () => manager.getConfigView());

@@ -1,7 +1,7 @@
 import fs from "node:fs/promises";
 import path from "node:path";
 
-import type { MaterializedSession } from "@codex-keeper/shared";
+import type { MaterializedSession } from "@session-keeper/shared";
 
 import type { IngestCursorRecord } from "../rollout.js";
 import { basenameSafe, excerpt, normalizeWhitespace, stripControl } from "../util.js";

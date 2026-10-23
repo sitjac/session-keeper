@@ -11,12 +11,12 @@ if [ -s "${NVM_DIR}/nvm.sh" ]; then
 fi
 
 if ! command -v node >/dev/null 2>&1; then
-  echo "[codex-keeper] node was not found in PATH. Install Node.js >= 20 or configure NVM_DIR." >&2
+  echo "[session-keeper] node was not found in PATH. Install Node.js >= 20 or configure NVM_DIR." >&2
   exit 1
 fi
 
 if ! command -v npm >/dev/null 2>&1; then
-  echo "[codex-keeper] npm was not found in PATH. Install npm >= 10 or configure NVM_DIR." >&2
+  echo "[session-keeper] npm was not found in PATH. Install npm >= 10 or configure NVM_DIR." >&2
   exit 1
 fi
 

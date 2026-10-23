@@ -1,4 +1,4 @@
-import { buildSessionRevision, isDirtySinceRename } from "@codex-keeper/core";
+import { buildSessionRevision, isDirtySinceRename } from "@session-keeper/core";
 import { describe, expect, it } from "vitest";
 
 describe("revision and dirty tracking", () => {

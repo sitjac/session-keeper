@@ -1,5 +1,5 @@
 import fs from "node:fs/promises";
-import { readCodexThreadStateSnapshot } from "@codex-keeper/core";
+import { readCodexThreadStateSnapshot } from "@session-keeper/core";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 import {

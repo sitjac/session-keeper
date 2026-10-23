@@ -1,15 +1,15 @@
 {
-  "name": "@codex-keeper/api",
+  "name": "@session-keeper/api",
   "version": "0.1.0",
   "type": "module",
   "bin": {
-    "codex-keeper-api": "./dist/index.js"
+    "session-keeper-api": "./dist/index.js"
   },
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "dependencies": {
-    "@codex-keeper/core": "0.1.0",
-    "@fastify/static": "^9.1.0",
+    "@fastify/static": "^10.1.7",
+    "@session-keeper/core": "0.1.0",
     "fastify": "^5.8.4"
   }
 }

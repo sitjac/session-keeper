@@ -14,7 +14,7 @@ import type {
   SessionStatusEstimate,
   SessionSummary,
   WorkspaceSummary,
-} from "@codex-keeper/shared";
+} from "@session-keeper/shared";
 import Database from "better-sqlite3";
 
 import { isDirtySinceRename } from "./revision.js";

@@ -9,7 +9,7 @@ import {
   parseClaudeTranscript,
   removeClaudeHistory,
   updateClaudeHistory,
-} from "@codex-keeper/core";
+} from "@session-keeper/core";
 import { describe, expect, it } from "vitest";
 
 async function tempClaudeHome(): Promise<string> {

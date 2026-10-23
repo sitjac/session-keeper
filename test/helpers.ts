@@ -1,9 +1,9 @@
 import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
-import type { CodexTurnRunner } from "@codex-keeper/core";
-import { CodexKeeper } from "@codex-keeper/core";
-import type { EffectiveConfig } from "@codex-keeper/shared";
+import type { CodexTurnRunner } from "@session-keeper/core";
+import { SessionKeeper } from "@session-keeper/core";
+import type { EffectiveConfig } from "@session-keeper/shared";
 import Database from "better-sqlite3";
 
 type DeepPartial<T> = {
@@ -247,14 +247,14 @@ export async function createManagerForTest(
     stateDir: string;
     turnRunner?: CodexTurnRunner;
   },
-): Promise<CodexKeeper> {
+): Promise<SessionKeeper> {
   const workspaceRoot = path.dirname(overrides.codexHome);
-  const configPath = path.join(workspaceRoot, ".config", "codex-keeper", "config.toml");
+  const configPath = path.join(workspaceRoot, ".config", "session-keeper", "config.toml");
   const { codexHome, stateDir, turnRunner, ...configOverrides } = overrides;
   // Default to an empty, non-existent Claude home so tests never pick up the
   // real ~/.claude sessions unless a fixture is explicitly provided.
   const claudeHome = overrides.claudeHome ?? path.join(workspaceRoot, ".claude-test");
-  const manager = await CodexKeeper.create({
+  const manager = await SessionKeeper.create({
     cwd: workspaceRoot,
     configPath,
     overrides: {

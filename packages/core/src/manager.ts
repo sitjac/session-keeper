@@ -16,8 +16,8 @@ import type {
   SessionTranscript,
   SessionTranscriptPage,
   WorkspaceSummary,
-} from "@codex-keeper/shared";
-import { SESSION_INDEX_FILENAME } from "@codex-keeper/shared";
+} from "@session-keeper/shared";
+import { SESSION_INDEX_FILENAME } from "@session-keeper/shared";
 import {
   appendClaudeAiTitle,
   claudeHistoryPath,
@@ -55,7 +55,7 @@ const TRANSCRIPT_CACHE_LIMIT = 24;
 const DEFERRED_CODEX_STATE_RETRY_DELAYS_MS = [250, 1500, 5000] as const;
 const DEFERRED_CODEX_STATE_BUSY_TIMEOUT_MS = 250;
 
-export class CodexKeeperRequestError extends Error {
+export class SessionKeeperRequestError extends Error {
   constructor(
     message: string,
     public readonly statusCode: number,
@@ -135,7 +135,7 @@ function resolveOfficialName(params: {
   return codexState ?? contract;
 }
 
-export class CodexKeeper {
+export class SessionKeeper {
   private sessionIndexCache?: {
     size: number;
     mtimeMs: number;
@@ -194,14 +194,14 @@ export class CodexKeeper {
     overrides?: Partial<EffectiveConfig>;
     operator?: string;
     turnRunner?: CodexTurnRunner;
-  }): Promise<CodexKeeper> {
+  }): Promise<SessionKeeper> {
     const config = await loadEffectiveConfig({
       cwd: options?.cwd,
       configPath: options?.configPath,
       overrides: options?.overrides,
     });
     const db = await StateDatabase.create(path.join(config.general.stateDir, "app.db"));
-    return new CodexKeeper(config, db, options?.operator, {
+    return new SessionKeeper(config, db, options?.operator, {
       cwd: options?.cwd,
       configPath: options?.configPath,
       overrides: options?.overrides,
@@ -485,10 +485,10 @@ export class CodexKeeper {
   ): Promise<SessionMessageResponse> {
     const prompt = request.message.trim();
     if (!prompt) {
-      throw new CodexKeeperRequestError("Message cannot be empty.", 400);
+      throw new SessionKeeperRequestError("Message cannot be empty.", 400);
     }
     if (this.activeSessionTurns.has(threadId)) {
-      throw new CodexKeeperRequestError(`Session is already processing: ${threadId}`, 409);
+      throw new SessionKeeperRequestError(`Session is already processing: ${threadId}`, 409);
     }
 
     const turn = this.runSessionTurn(threadId, prompt);
@@ -505,7 +505,7 @@ export class CodexKeeper {
   private async runSessionTurn(threadId: string, prompt: string): Promise<SessionMessageResponse> {
     const detail = await this.requireKnownSessionDetail(threadId);
     if (detail.source !== "codex") {
-      throw new CodexKeeperRequestError(
+      throw new SessionKeeperRequestError(
         `Continuing ${detail.source} sessions is not supported yet.`,
         400,
       );
@@ -776,7 +776,7 @@ export class CodexKeeper {
 
   async getRenameHistory(
     threadId: string,
-  ): Promise<import("@codex-keeper/shared").RenameHistoryRecord[]> {
+  ): Promise<import("@session-keeper/shared").RenameHistoryRecord[]> {
     await this.scan();
     return this.db.getRenameHistory(threadId);
   }

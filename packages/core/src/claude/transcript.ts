@@ -3,7 +3,7 @@ import type {
   SessionTranscriptAttachment,
   SessionTranscriptEntry,
   SessionTranscriptRole,
-} from "@codex-keeper/shared";
+} from "@session-keeper/shared";
 
 interface ClaudeEvent {
   type?: string;

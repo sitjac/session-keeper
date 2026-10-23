@@ -1,6 +1,6 @@
 import path from "node:path";
 
-import { CLAUDE_PROJECTS_DIRNAME } from "@codex-keeper/shared";
+import { CLAUDE_PROJECTS_DIRNAME } from "@session-keeper/shared";
 import fg from "fast-glob";
 
 export interface ClaudeSessionFile {

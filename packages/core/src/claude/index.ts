@@ -1,8 +1,8 @@
 import fs from "node:fs/promises";
 import path from "node:path";
 
-import type { SessionTranscript } from "@codex-keeper/shared";
-import { CLAUDE_HISTORY_FILENAME } from "@codex-keeper/shared";
+import type { SessionTranscript } from "@session-keeper/shared";
+import { CLAUDE_HISTORY_FILENAME } from "@session-keeper/shared";
 
 import { parseClaudeTranscript } from "./transcript.js";
 

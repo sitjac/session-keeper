@@ -1,4 +1,4 @@
-import type { ApiEventRecord } from "@codex-keeper/shared";
+import type { ApiEventRecord } from "@session-keeper/shared";
 import { useEffect, useRef } from "react";
 
 import { fetchEvents } from "../api.js";

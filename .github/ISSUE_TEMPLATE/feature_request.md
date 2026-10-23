@@ -1,6 +1,6 @@
 ---
 name: Feature request
-about: Suggest a new sitJac/codex-keeper capability or workflow improvement
+about: Suggest a new sitJac/session-keeper capability or workflow improvement
 title: "[Feature] "
 labels: enhancement
 assignees: ""

@@ -1,4 +1,4 @@
-# Codex Keeper 开机自启
+# Session Keeper 开机自启
 
 `npm run serve` 在启动本地服务前，已经会先执行 `build:runtime` 和 `web:build`。对这个仓库来说，在 Linux 上最稳妥的开机自启方案是使用 `systemd --user` 服务来调用 `scripts/start-serve.sh`。
 
@@ -25,21 +25,21 @@
 2. 将示例服务文件复制到对应位置：
 
    ```bash
-   cp /home/xiejunjie/Work/PersonalCodes/Github/codex-keeper/scripts/codex-keeper.service.example \
-     ~/.config/systemd/user/codex-keeper.service
+   cp /home/xiejunjie/Work/PersonalCodes/Github/session-keeper/scripts/session-keeper.service.example \
+     ~/.config/systemd/user/session-keeper.service
    ```
 
 3. 给启动脚本添加可执行权限：
 
    ```bash
-   chmod +x /home/xiejunjie/Work/PersonalCodes/Github/codex-keeper/scripts/start-serve.sh
+   chmod +x /home/xiejunjie/Work/PersonalCodes/Github/session-keeper/scripts/start-serve.sh
    ```
 
 4. 重新加载配置并立即启动服务：
 
    ```bash
    systemctl --user daemon-reload
-   systemctl --user enable --now codex-keeper.service
+   systemctl --user enable --now session-keeper.service
    ```
 
 5. 如果你希望机器刚开机时就启动，而不是等你登录后才启动，可以额外执行一次：
@@ -53,40 +53,40 @@
 - 查看状态：
 
   ```bash
-  systemctl --user status codex-keeper.service
+  systemctl --user status session-keeper.service
   ```
 
 - 实时查看日志：
 
   ```bash
-  journalctl --user -u codex-keeper.service -f
+  journalctl --user -u session-keeper.service -f
   ```
 
 - 代码更新后重启服务：
 
   ```bash
-  systemctl --user restart codex-keeper.service
+  systemctl --user restart session-keeper.service
   ```
 
 - 关闭开机自启并停止服务：
 
   ```bash
-  systemctl --user disable --now codex-keeper.service
+  systemctl --user disable --now session-keeper.service
   ```
 
 ## 可选覆盖配置
 
-如果你想让服务监听其他主机地址或端口，可以编辑 `~/.config/systemd/user/codex-keeper.service`，修改 `ExecStart`，例如：
+如果你想让服务监听其他主机地址或端口，可以编辑 `~/.config/systemd/user/session-keeper.service`，修改 `ExecStart`，例如：
 
 ```ini
-ExecStart=%h/Work/PersonalCodes/Github/codex-keeper/scripts/start-serve.sh --host 0.0.0.0 --port 42110
+ExecStart=%h/Work/PersonalCodes/Github/session-keeper/scripts/start-serve.sh --host 0.0.0.0 --port 42110
 ```
 
 修改后重新加载并重启：
 
 ```bash
 systemctl --user daemon-reload
-systemctl --user restart codex-keeper.service
+systemctl --user restart session-keeper.service
 ```
 
 ## 兜底方案

@@ -1,5 +1,5 @@
-import type { ConfigDocument, UiLanguage } from "@codex-keeper/shared";
 import * as TOML from "@iarna/toml";
+import type { ConfigDocument, UiLanguage } from "@session-keeper/shared";
 
 import { ensureTrailingNewline } from "../util.js";
 
