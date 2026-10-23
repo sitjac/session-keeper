@@ -161,11 +161,14 @@ cli
 cli
   .command("list", "List known sessions")
   .option("--workspace <workspace>", "Filter by workspace id/path")
+  .option("--source <source>", "Filter by source (codex|claude)")
   .option("--search <query>", "Search session name, id, project, or cwd")
-  .action(async (options: { workspace?: string; search?: string }) => {
+  .action(async (options: { workspace?: string; source?: string; search?: string }) => {
     const sessions = await withManager((manager) =>
       manager.listSessions({
         workspace: options.workspace,
+        source:
+          options.source === "codex" || options.source === "claude" ? options.source : undefined,
         search: options.search,
       }),
     );

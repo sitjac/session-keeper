@@ -5,6 +5,9 @@
 # Usually you can keep the default Codex home.
 codex_home = "~/.codex"
 
+# Claude CLI home. Keep the default to manage Claude Code sessions too.
+claude_home = "~/.claude"
+
 # sitJac/codex-keeper keeps its own SQLite state and runtime files here.
 state_dir = "~/.local/state/codex-keeper"
 
