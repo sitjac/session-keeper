@@ -54,8 +54,8 @@
     "@types/better-sqlite3": "^7.6.13",
     "@types/node": "^24.6.0",
     "lefthook": "^2.1.5",
-    "tsx": "^4.20.5",
+    "tsx": "^4.23.15",
     "typescript": "^5.9.3",
-    "vitest": "^3.2.4"
+    "vitest": "^5.0.5"
   }
 }
