@@ -1,4 +1,5 @@
 export type UiLanguage = "en-US" | "zh-CN";
+export type SessionSource = "codex" | "claude";
 export type RenameSource = "manual" | "recovered";
 export type RenameHistoryKind = "manual" | "compact-rewrite";
 export type RenameStatus = "applied" | "skipped" | "failed";
@@ -23,6 +24,7 @@ export interface SessionTranscriptAttachment {
 
 export interface GeneralConfig {
   codexHome: string;
+  claudeHome: string;
   stateDir: string;
   uiLanguage: UiLanguage;
 }
@@ -101,6 +103,7 @@ export interface CompactIndexResult {
 export interface MaterializedSession {
   threadId: string;
   rolloutPath: string;
+  source: SessionSource;
   cwd?: string;
   projectName?: string;
   createdAt?: string;
@@ -131,6 +134,7 @@ export type SortOrder = "asc" | "desc";
 
 export interface SessionListQuery {
   workspace?: string;
+  source?: SessionSource;
   search?: string;
   sort?: SessionListSortField;
   order?: SortOrder;
@@ -238,6 +242,7 @@ export interface RenameHistoryRecord {
 
 export interface SessionSummary {
   threadId: string;
+  source: SessionSource;
   cwd?: string;
   projectName?: string;
   workspaceId: string;
@@ -269,6 +274,8 @@ export interface SessionDetail extends SessionSummary {
 export interface ScanReport {
   scannedRollouts: number;
   updatedSessions: number;
+  scannedClaudeFiles: number;
+  updatedClaudeSessions: number;
 }
 
 export interface SessionsResponse {

@@ -1,4 +1,4 @@
-import type { ApiEventRecord } from "@codex-keeper/shared";
+import type { ApiEventRecord } from "@session-keeper/shared";
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { DataResource, TabId } from "./control-deck-model.js";
 import { mergeResources, panelResourcesForTab } from "./control-deck-model.js";

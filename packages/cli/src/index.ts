@@ -3,8 +3,8 @@
 import { existsSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { startApiServer, waitForShutdown } from "@codex-keeper/api";
-import { CodexKeeper } from "@codex-keeper/core";
+import { startApiServer, waitForShutdown } from "@session-keeper/api";
+import { SessionKeeper } from "@session-keeper/core";
 import { cac } from "cac";
 import { inspectListeningPortOwner } from "./port-owner.js";
 import {
@@ -23,8 +23,8 @@ type ServeOptions = {
   webRoot?: string;
 };
 
-async function withManager<T>(fn: (manager: CodexKeeper) => Promise<T>): Promise<T> {
-  const manager = await CodexKeeper.create({ operator: "cli" });
+async function withManager<T>(fn: (manager: SessionKeeper) => Promise<T>): Promise<T> {
+  const manager = await SessionKeeper.create({ operator: "cli" });
   try {
     return await fn(manager);
   } finally {
@@ -63,7 +63,7 @@ function resolvePort(portValue: string | number | undefined, fallback: number): 
 }
 
 const normalizedArgv = normalizeArgv(process.argv);
-const cli = cac("codex-keeper");
+const cli = cac("session-keeper");
 
 cli
   .command("serve", "Run the local API with built Web assets")
@@ -153,19 +153,22 @@ cli
       );
     }
 
-    console.error(`[codex-keeper] Service listening at http://${host}:${port}/`);
-    console.error(`[codex-keeper] Web root: ${webRoot}`);
+    console.error(`[session-keeper] Service listening at http://${host}:${port}/`);
+    console.error(`[session-keeper] Web root: ${webRoot}`);
     await waitForShutdown(app);
   });
 
 cli
   .command("list", "List known sessions")
   .option("--workspace <workspace>", "Filter by workspace id/path")
+  .option("--source <source>", "Filter by source (codex|claude)")
   .option("--search <query>", "Search session name, id, project, or cwd")
-  .action(async (options: { workspace?: string; search?: string }) => {
+  .action(async (options: { workspace?: string; source?: string; search?: string }) => {
     const sessions = await withManager((manager) =>
       manager.listSessions({
         workspace: options.workspace,
+        source:
+          options.source === "codex" || options.source === "claude" ? options.source : undefined,
         search: options.search,
       }),
     );

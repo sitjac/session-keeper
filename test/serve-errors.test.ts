@@ -58,9 +58,9 @@ describe("serve error helpers", () => {
     expect(
       formatServeAlreadyRunningMessage({
         baseUrl: "http://127.0.0.1:42110/",
-        cwd: "/tmp/codex-keeper",
+        cwd: "/tmp/session-keeper",
       }),
-    ).toContain("Reusing existing sitJac/codex-keeper service");
+    ).toContain("Reusing existing sitJac/session-keeper service");
   });
 
   it("formats a conflict message for another repo", () => {
@@ -70,7 +70,7 @@ describe("serve error helpers", () => {
       cwd: "/tmp/other-repo",
     });
 
-    expect(message).toContain("another sitJac/codex-keeper repo");
+    expect(message).toContain("another sitJac/session-keeper repo");
     expect(message).toContain("/tmp/other-repo");
     expect(message).toContain("npm run serve -- --port 42111");
   });

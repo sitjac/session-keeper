@@ -13,6 +13,7 @@ import type {
 const transcriptRoleSchema = z.enum(["all", "user", "assistant", "tool", "system"]);
 const sessionSortFieldSchema = z.enum(["updatedAt", "project", "officialName"]);
 const sortOrderSchema = z.enum(["asc", "desc"]);
+const sessionSourceSchema = z.enum(["codex", "claude"]);
 
 const optionalTrimmedStringSchema = z.preprocess((value) => {
   if (typeof value !== "string") {
@@ -61,6 +62,10 @@ export const sessionIndexEntryWireSchema = sessionIndexEntrySchema.transform((va
 
 export const sessionListQuerySchema: z.ZodType<SessionListQuery> = z.object({
   workspace: optionalTrimmedStringSchema,
+  source: z.preprocess(
+    (value) => (value === "" ? undefined : value),
+    sessionSourceSchema.optional(),
+  ),
   search: optionalTrimmedStringSchema,
   sort: z.preprocess(
     (value) => (value === "" ? undefined : value),

@@ -7,7 +7,7 @@ import type {
   SessionTranscriptEntry,
   SessionTranscriptPage,
   SessionTranscriptRole,
-} from "@codex-keeper/shared";
+} from "@session-keeper/shared";
 import fg from "fast-glob";
 
 import { isInternalCodexThreadSource } from "./codex-state.js";
@@ -441,6 +441,7 @@ export async function ingestRolloutFile(params: {
     : {
         threadId: "",
         rolloutPath: params.rolloutPath,
+        source: "codex",
         taskCompleteCount: 0,
         tokenTotal: 0,
       };

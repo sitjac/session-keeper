@@ -5,7 +5,7 @@ import {
   compactSessionIndex,
   readSessionIndex,
   removeSessionIndexThread,
-} from "@codex-keeper/core";
+} from "@session-keeper/core";
 import { describe, expect, it } from "vitest";
 
 import { createTempWorkspace } from "./helpers.js";

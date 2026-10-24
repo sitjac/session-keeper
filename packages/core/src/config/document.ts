@@ -1,5 +1,5 @@
-import type { ConfigDocument, UiLanguage } from "@codex-keeper/shared";
 import * as TOML from "@iarna/toml";
+import type { ConfigDocument, UiLanguage } from "@session-keeper/shared";
 
 import { ensureTrailingNewline } from "../util.js";
 
@@ -27,6 +27,7 @@ export function normalizeConfigDocumentInput(raw: Record<string, unknown>): Conf
   return {
     general: {
       codexHome: getString(general, "codex_home") ?? getString(general, "codexHome"),
+      claudeHome: getString(general, "claude_home") ?? getString(general, "claudeHome"),
       stateDir: getString(general, "state_dir") ?? getString(general, "stateDir"),
       uiLanguage: getUiLanguage(general),
     },
@@ -50,6 +51,7 @@ export function serializeConfigDocument(document: ConfigDocument): string {
   const payload = {
     general: {
       codex_home: document.general?.codexHome,
+      claude_home: document.general?.claudeHome,
       state_dir: document.general?.stateDir,
       ui_language: document.general?.uiLanguage,
     },

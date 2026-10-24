@@ -1,85 +1,85 @@
-# Bokushi Design System
+# Bokushi 设计系统
 
-> Agent-consumable design specification for the Bokushi (博物志) personal blog.
-> Source of truth: `src/styles/tokens.css` + `src/styles/global.css`
+> 面向 Agent 的可消费设计规范，适用于 Bokushi（博物志）个人博客。
+> 事实来源：`src/styles/tokens.css` + `src/styles/global.css`
 
-## 1. Visual Theme & Atmosphere
+## 1. 视觉主题与氛围
 
-**Style**: Warm, paper-like reading experience inspired by Japanese stationery
-**Framework**: Apple Human Interface Guidelines (Clarity, Consistency, Deference)
-**Personality**: Content-first, minimal interaction, generous whitespace
-**Font**: jf-openhuninn-2.0 (Chinese-optimized open-source font) with system fallbacks
-**Base size**: 17px (1.0625rem) — Apple HIG compliant for readability
+**风格**：受日式文具启发的温暖、纸张般的阅读体验
+**框架**：Apple 人机界面指南（清晰、一致、尊重内容）
+**个性**：内容优先、克制的交互、充裕的留白
+**字体**：jf-openhuninn-2.0（中文优化的开源字体），搭配系统回退字体
+**基础字号**：17px（1.0625rem）—— 符合 Apple HIG 对可读性的要求
 
-The blog uses a warm earth-tone palette with terracotta accents. Dark mode deepens the warmth rather than going cold/blue. Strong text and `<strong>` tags render in the accent color, not bold black.
+博客采用温暖的大地色系，配以陶土色点缀。深色模式是「加深暖意」而非转向冷色/蓝色。正文中的 `<strong>` 标签以强调色渲染，而非加粗的黑色。
 
-## 2. Color Palette & Roles
+## 2. 色彩调色板与角色
 
-### Light Theme (default)
+### 浅色主题（默认）
 
-| Token | Value | Role |
+| Token | 值 | 角色 |
 |-------|-------|------|
-| `--color-bg-page` | `#fffaf4` | Page background — warm off-white |
-| `--color-bg-surface` | `#ffffff` | Card/panel background |
-| `--color-bg-muted` | `#f8efe4` | Secondary background, footnotes, pills |
-| `--color-text-primary` | `#2a1c17` | Headings, body text |
-| `--color-text-secondary` | `#46342a` | Paragraphs, list items |
-| `--color-text-muted` | `#5f4d42` | Captions, metadata, markers |
-| `--color-text-inverse` | `#fef9f0` | Text on dark backgrounds |
-| `--color-accent` | `#fb8f68` | Primary accent — terracotta orange |
-| `--color-accent-dark` | `#d67046` | Alert titles, deeper accent |
-| `--color-accent-soft` | `#ffe7dc` | Accent background tint |
-| `--color-link` | `#c05c3e` | Inline link color |
-| `--color-link-hover` | `#9a472f` | Link hover state |
-| `--color-border` | `#dcc9ba` | Default border |
-| `--color-border-soft` | `rgba(42 28 23 / 0.08)` | Subtle card borders |
-| `--color-border-subtle` | `rgba(42 28 23 / 0.12)` | Code blocks, table borders |
-| `--color-border-strong` | `#cbb69d` | Emphasized borders |
-| `--color-success` | `#4f8b63` | Success state |
-| `--color-warning` | `#d8871d` | Warning state |
-| `--color-danger` | `#c84c3a` | Danger/caution state |
-| `--color-note` | `#8d7bd6` | Note/info state |
-| `--color-code-bg` | `#f6f8fa` | Code block background |
+| `--color-bg-page` | `#fffaf4` | 页面背景 —— 暖米白 |
+| `--color-bg-surface` | `#ffffff` | 卡片 / 面板背景 |
+| `--color-bg-muted` | `#f8efe4` | 次级背景、脚注、胶囊标签 |
+| `--color-text-primary` | `#2a1c17` | 标题、正文文本 |
+| `--color-text-secondary` | `#46342a` | 段落、列表项 |
+| `--color-text-muted` | `#5f4d42` | 说明文字、元数据、标记 |
+| `--color-text-inverse` | `#fef9f0` | 深色背景上的文本 |
+| `--color-accent` | `#fb8f68` | 主强调色 —— 陶土橙 |
+| `--color-accent-dark` | `#d67046` | 警示标题、更深一档的强调色 |
+| `--color-accent-soft` | `#ffe7dc` | 强调色背景淡色 |
+| `--color-link` | `#c05c3e` | 行内链接色 |
+| `--color-link-hover` | `#9a472f` | 链接悬停态 |
+| `--color-border` | `#dcc9ba` | 默认边框 |
+| `--color-border-soft` | `rgba(42 28 23 / 0.08)` | 卡片细边框 |
+| `--color-border-subtle` | `rgba(42 28 23 / 0.12)` | 代码块、表格边框 |
+| `--color-border-strong` | `#cbb69d` | 强调边框 |
+| `--color-success` | `#4f8b63` | 成功态 |
+| `--color-warning` | `#d8871d` | 警告态 |
+| `--color-danger` | `#c84c3a` | 危险 / 注意态 |
+| `--color-note` | `#8d7bd6` | 提示 / 信息态 |
+| `--color-code-bg` | `#f6f8fa` | 代码块背景 |
 
-### Dark Theme (`[data-theme="dark"]`)
+### 深色主题（`[data-theme="dark"]`）
 
-| Token | Value | Role |
+| Token | 值 | 角色 |
 |-------|-------|------|
-| `--color-bg-page` | `#140e0b` | Deep warm black |
-| `--color-bg-surface` | `#1b140f` | Card background |
-| `--color-bg-muted` | `#241914` | Secondary surface |
-| `--color-text-primary` | `#f8ede1` | Primary text |
-| `--color-text-secondary` | `#d7c6b8` | Body text |
-| `--color-text-muted` | `#b8a090` | Captions, metadata |
-| `--color-text-inverse` | `#1b120c` | Text on light surfaces |
-| `--color-accent` | `#fb8f68` | Same accent in both themes |
-| `--color-accent-dark` | `#d67046` | Deep accent / link |
-| `--color-accent-soft` | rgba(251, 143, 104, 0.16) | Transparent tint |
-| `--color-link` | `#ffb088` | Warmer link for dark bg |
-| `--color-link-hover` | `#ffcfb3` | Link hover |
-| `--color-border` | `#3b2b22` | Border |
-| `--color-border-strong` | `#4b372d` | Strong border |
-| `--color-success` | `#8bcaa0` | Success |
-| `--color-warning` | `#f3b05b` | Warning |
-| `--color-danger` | `#f18879` | Danger |
-| `--color-note` | `#a79fe6` | Note |
-| `--color-code-bg` | `#1e1e2e` | Catppuccin Mocha base |
+| `--color-bg-page` | `#140e0b` | 深暖黑 |
+| `--color-bg-surface` | `#1b140f` | 卡片背景 |
+| `--color-bg-muted` | `#241914` | 次级表面 |
+| `--color-text-primary` | `#f8ede1` | 主文本 |
+| `--color-text-secondary` | `#d7c6b8` | 正文文本 |
+| `--color-text-muted` | `#b8a090` | 说明文字、元数据 |
+| `--color-text-inverse` | `#1b120c` | 浅色表面上的文本 |
+| `--color-accent` | `#fb8f68` | 两种主题下相同的强调色 |
+| `--color-accent-dark` | `#d67046` | 深强调色 / 链接 |
+| `--color-accent-soft` | rgba(251, 143, 104, 0.16) | 透明淡色 |
+| `--color-link` | `#ffb088` | 深色背景下更暖的链接色 |
+| `--color-link-hover` | `#ffcfb3` | 链接悬停态 |
+| `--color-border` | `#3b2b22` | 边框 |
+| `--color-border-strong` | `#4b372d` | 强边框 |
+| `--color-success` | `#8bcaa0` | 成功态 |
+| `--color-warning` | `#f3b05b` | 警告态 |
+| `--color-danger` | `#f18879` | 危险态 |
+| `--color-note` | `#a79fe6` | 提示态 |
+| `--color-code-bg` | `#1e1e2e` | Catppuccin Mocha 基础色 |
 
-### Accent Tint Scale
+### 强调色淡色刻度
 
-Used for hover states, backgrounds, and subtle fills:
+用于悬停态、背景和细微填充：
 
-| Token | Definition |
+| Token | 定义 |
 |-------|-----------|
-| `--color-accent-tint` | `rgba(accent-rgb / 0.16)` (light) or `0.22` (dark) |
+| `--color-accent-tint` | `rgba(accent-rgb / 0.16)`（浅色）或 `0.22`（深色） |
 | `--color-accent-tint-6` | `color-mix(in srgb, accent 6%, transparent)` |
 | `--color-accent-tint-8` | `color-mix(in srgb, accent 8%, transparent)` |
 | `--color-accent-tint-12` | `color-mix(in srgb, accent 12%, transparent)` |
 | `--color-accent-tint-18` | `color-mix(in srgb, accent 18%, transparent)` |
 
-### Overlay Tokens (theme-invariant)
+### 遮罩 Token（不随主题变化）
 
-| Token | Value |
+| Token | 值 |
 |-------|-------|
 | `--color-overlay-dark-35` | `rgba(0, 0, 0, 0.35)` |
 | `--color-overlay-dark-40` | `rgba(0, 0, 0, 0.4)` |
@@ -90,143 +90,143 @@ Used for hover states, backgrounds, and subtle fills:
 | `--color-overlay-light-80` | `rgba(255, 255, 255, 0.8)` |
 | `--color-overlay-light-90` | `rgba(255, 255, 255, 0.9)` |
 
-## 3. Typography Rules
+## 3. 排版规则
 
-**Primary font**: `jf-openhuninn-2.0`, then system stack (`-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif`)
-**Code font**: `Fira Code, SFMono-Regular, Consolas, Liberation Mono, Menlo, monospace`
-**Letter spacing**: `0.01em` on body (aids Chinese readability)
+**主字体**：`jf-openhuninn-2.0`，然后是系统字体栈（`-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif`）
+**代码字体**：`Fira Code, SFMono-Regular, Consolas, Liberation Mono, Menlo, monospace`
+**字间距**：正文 `0.01em`（有助于中文可读性）
 
-### Font Size Scale
+### 字号刻度
 
-| Token | Size | Typical Use |
+| Token | 尺寸 | 典型用途 |
 |-------|------|-------------|
-| `--font-size-2xs` | 0.6875rem (11px) | TOC numbers, fine print |
-| `--font-size-xs` | 0.8125rem (13px) | Pills, code-block lang, captions |
-| `--font-size-sm` | 0.9375rem (15px) | Figcaptions, footnotes, mobile TOC |
-| `--font-size-base` | 1.0625rem (17px) | Body text |
+| `--font-size-2xs` | 0.6875rem (11px) | 目录编号、极小字号 |
+| `--font-size-xs` | 0.8125rem (13px) | 胶囊标签、代码块语言标识、说明文字 |
+| `--font-size-sm` | 0.9375rem (15px) | 图注、脚注、移动端目录 |
+| `--font-size-base` | 1.0625rem (17px) | 正文文本 |
 | `--font-size-lg` | 1.25rem (20px) | H4 |
 | `--font-size-xl` | 1.5rem (24px) | H3 |
 | `--font-size-2xl` | 1.875rem (30px) | H2 |
 | `--font-size-3xl` | 2.25rem (36px) | H1 |
 
-### Line Heights
+### 行高
 
-| Token | Value | Use |
+| Token | 值 | 用途 |
 |-------|-------|-----|
-| `--line-height-base` | 1.75 | Body text, lists |
-| `--line-height-relaxed` | 1.65 | Figcaptions |
-| `--line-height-tight` | 1.22 | Headings |
+| `--line-height-base` | 1.75 | 正文文本、列表 |
+| `--line-height-relaxed` | 1.65 | 图注 |
+| `--line-height-tight` | 1.22 | 标题 |
 
-### Heading Styles
+### 标题样式
 
-| Level | Size | Weight | Letter-spacing | Extra |
+| 层级 | 尺寸 | 字重 | 字间距 | 额外 |
 |-------|------|--------|---------------|-------|
 | H1 | 3xl (2.25rem) | 700 | 0 | — |
-| H2 | 2xl (1.875rem) | 800 | -0.02em | Auto-numbered via CSS counter |
-| H3 | xl (1.5rem) | 700 | -0.01em | Numbered as `h2.h3` |
-| H4 | lg (1.25rem) | 700 | 0 | Numbered as `h2.h3.h4` |
+| H2 | 2xl (1.875rem) | 800 | -0.02em | 通过 CSS 计数器自动编号 |
+| H3 | xl (1.5rem) | 700 | -0.01em | 以 `h2.h3` 编号 |
+| H4 | lg (1.25rem) | 700 | 0 | 以 `h2.h3.h4` 编号 |
 
-### Bold/Strong Convention
+### 加粗 / 强调约定
 
-`<strong>` and `<b>` inside `.prose` render in `--color-accent` (terracotta) with `font-weight: 600`. This is a deliberate design choice — bold text is an accent highlight, not just heavier weight.
+`.prose` 内的 `<strong>` 和 `<b>` 以 `--color-accent`（陶土色）渲染，`font-weight: 600`。这是刻意的设计选择——加粗文本是一种强调高亮，而不只是更重的字重。
 
-## 4. Component Stylings
+## 4. 组件样式
 
-### Surface Card (`.surface-card`)
+### 表面卡片（`.surface-card`）
 
-Base: white background, soft border, rounded corners (radius-lg = 16px), soft shadow, 0.2s transition.
+基础：白色背景、细边框、圆角（radius-lg = 16px）、柔和阴影、0.2s 过渡。
 
-| Variant | Class | Behavior |
+| 变体 | 类名 | 行为 |
 |---------|-------|----------|
-| Default | `.surface-card` | White bg, `border-soft`, `shadow-soft` |
-| Soft | `--soft` | No shadow, subtle border, 80/20 surface/muted bg mix |
-| Flat | `--flat` | No shadow, subtle border only |
-| Compact | `--compact` | Smaller radius (radius-md = 10px) |
-| Hover: border | `--hover-border` | Border darkens + shadow appears on hover |
-| Hover: none | `--hover-none` | Disables hover transitions |
+| 默认 | `.surface-card` | 白色背景、`border-soft`、`shadow-soft` |
+| 柔和 | `--soft` | 无阴影、细边框、80/20 的 surface/muted 背景混合 |
+| 扁平 | `--flat` | 无阴影、仅细边框 |
+| 紧凑 | `--compact` | 更小的圆角（radius-md = 10px） |
+| 悬停：边框 | `--hover-border` | 悬停时边框加深 + 阴影出现 |
+| 悬停：无 | `--hover-none` | 禁用悬停过渡 |
 
-### Pill / Tag (`.pill`)
+### 胶囊标签 / 标签（`.pill`）
 
-Inline badge with `radius-full` (pill shape), muted bg, subtle border, xs font, 600 weight.
+内联徽章，`radius-full`（胶囊形）、淡色背景、细边框、xs 字号、600 字重。
 
-| Variant | Selector | Behavior |
+| 变体 | 选择器 | 行为 |
 |---------|----------|----------|
-| Default | `.pill` | Muted bg, secondary text |
-| Clickable | `.pill--clickable` | Cursor pointer, opacity:0.8 on hover |
-| Accent | `[data-tone="accent"]` | Accent-soft bg, accent text, accent-tinted border |
+| 默认 | `.pill` | 淡色背景、次级文本 |
+| 可点击 | `.pill--clickable` | 光标指针，悬停 opacity:0.8 |
+| 强调 | `[data-tone="accent"]` | accent-soft 背景、accent 文本、accent 淡色边框 |
 
-### Icon Button (`.icon-btn`)
+### 图标按钮（`.icon-btn`）
 
-Transparent background, secondary text color, transitions to accent on hover.
+透明背景、次级文本色，悬停时过渡到强调色。
 
-| Size | Class | Dimensions |
-|------|-------|-----------|
+| 尺寸 | 类名 | 尺寸 |
+|-------|-------|-----------|
 | XS | `--xs` | 2rem × 2rem |
 | SM | `--sm` | 2.75rem × 2.75rem |
 | MD | `--md` | 3rem × 3rem |
 
-| Shape | Class | Border-radius |
+| 形状 | 类名 | 圆角 |
 |-------|-------|--------------|
-| Round | `--round` | radius-full (9999px) |
-| Square | `--square` | radius-md (10px) |
-| Bordered | `--bordered` | + 1px border-soft |
+| 圆形 | `--round` | radius-full (9999px) |
+| 方形 | `--square` | radius-md (10px) |
+| 带边框 | `--bordered` | + 1px border-soft |
 
-### Underline Link (`.underline-link`)
+### 下划线链接（`.underline-link`）
 
-Link-colored text with animated underline: starts at `scaleX(0.6)`, expands to `scaleX(1)` on hover. Border-bottom with 70% link color opacity.
+链接色文本，带动画下划线：从 `scaleX(0.6)` 开始，悬停时扩展至 `scaleX(1)`。border-bottom 使用 70% 透明度的链接色。
 
-### Eyebrow (`.eyebrow`)
+### 眉题（`.eyebrow`）
 
-XS font, 0.12em letter-spacing, uppercase, muted color, 700 weight. Used for section labels.
+XS 字号、0.12em 字间距、大写、淡色、700 字重。用于章节标签。
 
-### Focus Style (`.focus-accent`)
+### 焦点样式（`.focus-accent`）
 
-2px solid `accent-soft` outline with 2px offset on `:focus-visible`.
+在 `:focus-visible` 上使用 2px 实线 `accent-soft` 轮廓，带 2px 偏移。
 
-### Markdown Alerts
+### Markdown 警示框
 
-Border-left 4px + tinted background. Colors by type:
+左边框 4px + 淡色背景。颜色按类型区分：
 
-| Type | Border Color | Background |
+| 类型 | 边框色 | 背景 |
 |------|-------------|-----------|
-| Note | `--color-note` | note 18% mix |
-| Tip | `--color-success` | success 18% mix |
-| Warning/Important | `--color-warning` | warning 18% mix |
-| Caution | `--color-danger` | danger 15% mix |
+| 提示 Note | `--color-note` | note 18% 混合 |
+| 技巧 Tip | `--color-success` | success 18% 混合 |
+| 警告 Warning/Important | `--color-warning` | warning 18% 混合 |
+| 注意 Caution | `--color-danger` | danger 15% 混合 |
 
-### Code Blocks
+### 代码块
 
-- Inline code: `0.1em 0.4em` padding, `radius-sm`, muted 15% mix bg, 0.95em size
-- Pre blocks: `space-4` padding, `radius-md`, `border-subtle`, `code-bg`
-- Code block header: flex row with language label (xs, uppercase, 0.08em tracking) + copy button
-- Shiki dual-theme: `--shiki-light` / `--shiki-dark` CSS variables
+- 行内代码：`0.1em 0.4em` 内边距、`radius-sm`、muted 15% 混合背景、0.95em 字号
+- Pre 代码块：`space-4` 内边距、`radius-md`、`border-subtle`、`code-bg`
+- 代码块头部：flex 行，包含语言标签（xs、大写、0.08em 字间距）+ 复制按钮
+- Shiki 双主题：`--shiki-light` / `--shiki-dark` CSS 变量
 
-### Theme Toggle
+### 主题切换
 
-Three-state cycle: system → light → dark. Icon animation uses `scale + rotate` transitions with spring easing (`cubic-bezier(0.34, 1.56, 0.64, 1)`). Two variants: `header` (minimal) and `mobile` (full-width with label).
+三态循环：系统 → 浅色 → 深色。图标动画使用 `scale + rotate` 过渡，带弹簧缓动（`cubic-bezier(0.34, 1.56, 0.64, 1)`）。两种变体：`header`（极简）和 `mobile`（全宽带标签）。
 
-## 5. Layout Principles
+## 5. 布局原则
 
-### Page Shell
+### 页面外壳
 
 ```css
 .page-shell {
     max-width: var(--layout-max-width);  /* 72rem */
     margin-inline: auto;
     padding-block: var(--space-8);       /* 2rem */
-    padding-inline: var(--space-4);      /* 1rem, → space-6 at 640px+ */
+    padding-inline: var(--space-4);      /* 1rem, → space-6 在 640px+ */
 }
 ```
 
-### Content Width
+### 内容宽度
 
-- `--layout-max-width`: 72rem (1152px) — outer page container
-- `--measure`: 68ch — prose readability limit
-- `--measure-wide`: 72ch — wider content areas
+- `--layout-max-width`: 72rem (1152px) —— 外层页面容器
+- `--measure`: 68ch —— 正文可读性上限
+- `--measure-wide`: 72ch —— 更宽的内容区域
 
-### Spacing Scale
+### 间距刻度
 
-| Token | Value | Pixels |
+| Token | 值 | 像素 |
 |-------|-------|--------|
 | `--space-1` | 0.25rem | 4px |
 | `--space-2` | 0.5rem | 8px |
@@ -237,116 +237,116 @@ Three-state cycle: system → light → dark. Icon animation uses `scale + rotat
 | `--space-8` | 2rem | 32px |
 | `--space-12` | 3rem | 48px |
 
-### Section Stack
+### 章节堆叠
 
-`.section-stack` uses `display: grid` with `gap: clamp(space-6, 3vw, space-12)` — responsive gap that scales between 24px and 48px.
+`.section-stack` 使用 `display: grid`，`gap: clamp(space-6, 3vw, space-12)` —— 响应式间距在 24px 到 48px 之间伸缩。
 
-## 6. Depth & Elevation
+## 6. 深度与层级
 
-### Shadow Presets
+### 阴影预设
 
-| Token | Light Value | Dark Value |
+| Token | 浅色值 | 深色值 |
 |-------|------------|------------|
 | `--shadow-soft` | `0 6px 18px rgba(47,37,25, 0.08)` | `0 10px 28px rgba(0,0,0, 0.32)` |
 | `--shadow-strong` | `0 16px 36px rgba(47,37,25, 0.14)` | `0 24px 42px rgba(0,0,0, 0.44)` |
 | `--shadow-lightbox` | `0 20px 60px rgba(0,0,0, 0.4)` | `0 20px 60px rgba(0,0,0, 0.6)` |
 | `--shadow-button-hover` | `0 6px 20px rgba(251,143,104, 0.3)` | `0 6px 20px rgba(251,159,116, 0.35)` |
 
-### Border Radius Scale
+### 圆角刻度
 
-| Token | Value | Use |
+| Token | 值 | 用途 |
 |-------|-------|-----|
-| `--radius-xs` | 2px | Checkboxes |
-| `--radius-sm` | 6px | Inline code, focus outlines |
-| `--radius-md` | 10px | Code blocks, compact cards, alerts |
-| `--radius-lg` | 16px | Cards, images, modals |
-| `--radius-full` | 9999px | Pills, round buttons |
+| `--radius-xs` | 2px | 复选框 |
+| `--radius-sm` | 6px | 行内代码、焦点轮廓 |
+| `--radius-md` | 10px | 代码块、紧凑卡片、警示框 |
+| `--radius-lg` | 16px | 卡片、图片、弹窗 |
+| `--radius-full` | 9999px | 胶囊标签、圆形按钮 |
 
-### Transition Timing
+### 过渡时长
 
-| Token | Value | Use |
+| Token | 值 | 用途 |
 |-------|-------|-----|
-| `--transition-fast` | 0.15s ease | Micro-interactions |
-| `--transition-base` | 0.2s ease | Most UI transitions |
-| `--transition-slow` | 0.3s ease | Panels, drawers |
-| `--transition-slower` | 0.5s ease | Theme icon rotation |
+| `--transition-fast` | 0.15s ease | 微交互 |
+| `--transition-base` | 0.2s ease | 大多数 UI 过渡 |
+| `--transition-slow` | 0.3s ease | 面板、抽屉 |
+| `--transition-slower` | 0.5s ease | 主题图标旋转 |
 
-## 7. Do's and Don'ts
+## 7. 应该做与不应该做
 
-### Do
+### 应该做
 
-- Use CSS variables (`var(--color-*)`) for all colors — never hardcode hex in components
-- Use semantic Tailwind tokens (`text-secondary`, `bg-surface`) over raw values
-- Keep hover effects to color/border changes only
-- Use `--transition-base` (0.2s) for standard interactions
-- Render `<strong>` in accent color within prose content
-- Use `.surface-card` variants instead of custom card styles
-- Respect `prefers-reduced-motion` — all animations have `0.01ms` fallback
+- 所有颜色使用 CSS 变量（`var(--color-*)`）—— 绝不在组件中硬编码十六进制值
+- 使用语义化 Tailwind token（`text-secondary`、`bg-surface`）而非原始值
+- 悬停效果仅限颜色/边框变化
+- 标准交互使用 `--transition-base`（0.2s）
+- 在 prose 内容中以强调色渲染 `<strong>`
+- 使用 `.surface-card` 变体，而非自定义卡片样式
+- 尊重 `prefers-reduced-motion` —— 所有动画都有 `0.01ms` 回退
 
-### Don't
+### 不应该做
 
-- Don't use `translateY` lift animations on hover (design principle: subtle, not bouncy)
-- Don't add new shadow levels — use `shadow-soft` or `shadow-strong`
-- Don't use raw hex values in Astro components — always reference tokens
-- Don't introduce new fonts or change the base 17px size
-- Don't bypass the three-state theme toggle (system/light/dark)
-- Don't use `!important` except in Mermaid diagram overrides (unavoidable due to library inline styles)
+- 不要使用 `translateY` 上浮动画（设计原则：微妙，而非弹跳）
+- 不要新增阴影层级 —— 使用 `shadow-soft` 或 `shadow-strong`
+- 不要在 Astro 组件中使用原始十六进制值 —— 始终引用 token
+- 不要引入新字体或更改基础 17px 字号
+- 不要绕过三态主题切换（系统/浅色/深色）
+- 除非在 Mermaid 图表覆盖中（由于库的内联样式而不可避免），不要使用 `!important`
 
-## 8. Responsive Behavior
+## 8. 响应式行为
 
-### Breakpoints
+### 断点
 
-| Breakpoint | Width | Key Changes |
+| 断点 | 宽度 | 关键变化 |
 |-----------|-------|-------------|
-| Mobile (default) | < 640px | `padding-inline: space-4` (16px), single column |
-| SM | ≥ 640px | `padding-inline: space-6` (24px) |
-| MD | ≥ 768px (48rem) | Tables switch from card-mode to table layout |
+| 移动端（默认） | < 640px | `padding-inline: space-4`（16px），单列 |
+| SM | ≥ 640px | `padding-inline: space-6`（24px） |
+| MD | ≥ 768px (48rem) | 表格从卡片模式切换为表格布局 |
 
-### Table-to-Card Pattern
+### 表格转卡片模式
 
-Tables with `data-card-mode="cards"` collapse to stacked cards below 48rem:
+带 `data-card-mode="cards"` 的表格在 48rem 以下折叠为堆叠卡片：
 
-- `thead` is hidden
-- Each `<tr>` becomes a card with `radius-md`, `shadow-soft`
-- Each `<td>` renders as label-value pair using `data-label` attribute
-- Label is uppercase, xs font, muted color; value takes remaining width
+- `thead` 被隐藏
+- 每个 `<tr>` 变成带 `radius-md`、`shadow-soft` 的卡片
+- 每个 `<td>` 使用 `data-label` 属性渲染为标签-值对
+- 标签为大写、xs 字号、淡色；值占据剩余宽度
 
-### Mobile-Specific Adaptations
+### 移动端特定适配
 
-- TOC: floating button → drawer (full-width, larger font)
-- Theme toggle: `[data-variant="mobile"]` — full-width button with visible label
-- Navigation: responsive header with mobile menu drawer
+- 目录：浮动按钮 → 抽屉（全宽、更大字号）
+- 主题切换：`[data-variant="mobile"]` —— 带可见标签的全宽按钮
+- 导航：响应式头部，带移动端菜单抽屉
 
-## 9. Agent Prompt Guide
+## 9. Agent 提示指南
 
-### Quick Color Reference
+### 快速配色参考
 
-When generating UI for this blog, use these semantic mappings:
+为本博客生成 UI 时，使用以下语义映射：
 
 ```text
-Page background     → var(--color-bg-page)
-Card background     → var(--color-bg-surface)
-Muted/secondary bg  → var(--color-bg-muted)
-Primary text        → var(--color-text-primary)
-Body/paragraph text → var(--color-text-secondary)
-Caption/meta text   → var(--color-text-muted)
-Primary accent      → var(--color-accent)
-Link                → var(--color-link)
-Card border         → var(--color-border-soft)
+页面背景     → var(--color-bg-page)
+卡片背景     → var(--color-bg-surface)
+淡色/次级背景 → var(--color-bg-muted)
+主文本        → var(--color-text-primary)
+正文/段落文本 → var(--color-text-secondary)
+说明/元数据文本 → var(--color-text-muted)
+主强调色      → var(--color-accent)
+链接          → var(--color-link)
+卡片边框      → var(--color-border-soft)
 ```
 
-### Component Selection Guide
+### 组件选择指南
 
-| Need | Use |
+| 需求 | 使用 |
 |------|-----|
-| A card/panel | `.surface-card` + variant modifier |
-| A tag/badge | `.pill` (+ `data-tone="accent"` for emphasis) |
-| An icon button | `.icon-btn` + size (`--sm`) + shape (`--round`) |
-| A text link | `.underline-link` or plain `<a>` inside `.prose` |
-| A section label | `.eyebrow` |
-| Focus ring | `.focus-accent` |
+| 卡片 / 面板 | `.surface-card` + 变体修饰符 |
+| 标签 / 徽章 | `.pill`（+ `data-tone="accent"` 表示强调） |
+| 图标按钮 | `.icon-btn` + 尺寸（`--sm`）+ 形状（`--round`） |
+| 文本链接 | `.underline-link` 或 `.prose` 内的普通 `<a>` |
+| 章节标签 | `.eyebrow` |
+| 焦点环 | `.focus-accent` |
 
-### Example: Creating a New Card Component
+### 示例：创建一个新卡片组件
 
 ```astro
 <div class="surface-card surface-card--soft p-6">
@@ -359,11 +359,11 @@ Card border         → var(--color-border-soft)
 </div>
 ```
 
-### Key Conventions
+### 关键约定
 
-1. All spacing uses the `--space-*` scale (4px increments up to 48px)
-2. Border radius follows the `--radius-*` scale (never use arbitrary values)
-3. Shadows are limited to `shadow-soft` and `shadow-strong`
-4. Transitions use `--transition-*` tokens (never raw `0.3s ease`)
-5. Dark mode is handled by CSS variables — no JS theme logic needed in components
-6. Tables should include `data-card-mode="cards"` for responsive mobile layout
+1. 所有间距使用 `--space-*` 刻度（4px 递增至 48px）
+2. 圆角遵循 `--radius-*` 刻度（绝不使用任意值）
+3. 阴影仅限 `shadow-soft` 和 `shadow-strong`
+4. 过渡使用 `--transition-*` token（绝不用原始 `0.3s ease`）
+5. 深色模式由 CSS 变量处理 —— 组件中无需 JS 主题逻辑
+6. 表格应包含 `data-card-mode="cards"` 以支持响应式移动端布局

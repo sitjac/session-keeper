@@ -1,12 +1,15 @@
 import fs from "node:fs/promises";
 import path from "node:path";
-import type { ConfigDocument, ConfigView, EffectiveConfig } from "@codex-keeper/shared";
+import * as TOML from "@iarna/toml";
+import type { ConfigDocument, ConfigView, EffectiveConfig } from "@session-keeper/shared";
 import {
   DEFAULT_CONFIG_RELATIVE_PATH,
   DEFAULT_STATE_RELATIVE_PATH,
+  LEGACY_CONFIG_RELATIVE_PATH,
+  LEGACY_PROJECT_CONFIG_FILENAME,
+  LEGACY_STATE_RELATIVE_PATH,
   PROJECT_CONFIG_FILENAME,
-} from "@codex-keeper/shared";
-import * as TOML from "@iarna/toml";
+} from "@session-keeper/shared";
 
 import { deepMerge, expandHome } from "../util.js";
 import type { DeepPartial } from "./defaults.js";
@@ -28,6 +31,52 @@ async function readTomlFile(filePath: string): Promise<Record<string, unknown> |
       return undefined;
     }
     throw error;
+  }
+}
+
+/**
+ * Migrate a `codex-keeper` layout (pre-rename) to the `session-keeper` layout
+ * on first run. Copies the user config file, the state directory, and the
+ * per-project config file when the new location is absent and the legacy one
+ * exists. Read-only fallback: if migration never ran and only the legacy paths
+ * exist, the config loader still reads them.
+ */
+export async function migrateLegacyPaths(options?: {
+  cwd?: string;
+  configPath?: string;
+}): Promise<void> {
+  const home = process.env.HOME ?? "";
+  const cwd = options?.cwd ?? process.cwd();
+
+  const legacyUserConfig = path.join(home, LEGACY_CONFIG_RELATIVE_PATH);
+  const newUserConfig = path.join(home, DEFAULT_CONFIG_RELATIVE_PATH);
+  const legacyState = path.join(home, LEGACY_STATE_RELATIVE_PATH);
+  const newState = path.join(home, DEFAULT_STATE_RELATIVE_PATH);
+  const legacyProjectConfig = path.join(cwd, LEGACY_PROJECT_CONFIG_FILENAME);
+  const newProjectConfig = path.join(cwd, PROJECT_CONFIG_FILENAME);
+
+  const migrations: Array<{ from: string; to: string; isDir: boolean }> = [
+    { from: legacyUserConfig, to: newUserConfig, isDir: false },
+    { from: legacyState, to: newState, isDir: true },
+    { from: legacyProjectConfig, to: newProjectConfig, isDir: false },
+  ];
+
+  for (const migration of migrations) {
+    try {
+      await fs.access(migration.to);
+      continue; // new location already present; do not overwrite.
+    } catch {
+      // fall through to migrate.
+    }
+
+    try {
+      await fs.access(migration.from);
+    } catch {
+      continue; // no legacy source to migrate.
+    }
+
+    await fs.mkdir(path.dirname(migration.to), { recursive: true });
+    await fs.cp(migration.from, migration.to, { recursive: migration.isDir });
   }
 }
 
@@ -95,6 +144,7 @@ export async function loadEffectiveConfig(options?: {
   configPath?: string;
   overrides?: Partial<EffectiveConfig>;
 }): Promise<EffectiveConfig> {
+  await migrateLegacyPaths(options);
   const paths = await resolveConfigPaths(options);
   const userRaw = normalizeConfigDocumentInput((await readTomlFile(paths.userConfigPath)) ?? {});
   const projectRaw = normalizeConfigDocumentInput(
@@ -115,6 +165,7 @@ export async function loadEffectiveConfig(options?: {
   return {
     general: {
       codexHome: expandHome(effective.general.codexHome ?? DEFAULT_CONFIG.general.codexHome),
+      claudeHome: expandHome(effective.general.claudeHome ?? DEFAULT_CONFIG.general.claudeHome),
       stateDir: explicitStateDir
         ? expandHome(explicitStateDir)
         : expandHome(`~/${DEFAULT_STATE_RELATIVE_PATH}`),

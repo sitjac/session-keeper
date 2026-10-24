@@ -1,5 +1,5 @@
 {
-  "name": "@codex-keeper/shared",
+  "name": "@session-keeper/shared",
   "version": "0.1.0",
   "type": "module",
   "main": "./dist/index.js",

@@ -9,6 +9,7 @@ export {
   buildConfigForTests,
   loadConfigView,
   loadEffectiveConfig,
+  migrateLegacyPaths,
   resolveConfigPaths,
   writeUserConfig,
 } from "./config/files.js";

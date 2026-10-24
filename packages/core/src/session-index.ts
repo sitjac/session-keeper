@@ -4,8 +4,8 @@ import type {
   CompactIndexResult,
   SessionIndexEntry,
   SessionIndexSnapshot,
-} from "@codex-keeper/shared";
-import { sessionIndexEntryWireSchema } from "@codex-keeper/shared";
+} from "@session-keeper/shared";
+import { sessionIndexEntryWireSchema } from "@session-keeper/shared";
 
 import { ensureTrailingNewline, toUtcIso } from "./util.js";
 

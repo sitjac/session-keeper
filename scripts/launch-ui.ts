@@ -37,7 +37,7 @@ function parseArgs(argv: string[]): {
   const apiBase =
     apiBaseFromFlag ??
     (apiBaseIndex >= 0 ? rest[apiBaseIndex + 1] : undefined) ??
-    process.env.CODEX_KEEPER_API_BASE;
+    process.env.SESSION_KEEPER_API_BASE;
 
   return {
     mode: modeArg,
@@ -324,7 +324,7 @@ async function terminateProcesses(processes: ManagedProcessSnapshot[]): Promise<
 
   for (const processInfo of unique.values()) {
     console.error(
-      `[codex-keeper] Closing stale ${processInfo.kind} process pid=${processInfo.pid}`,
+      `[session-keeper] Closing stale ${processInfo.kind} process pid=${processInfo.pid}`,
     );
     try {
       process.kill(processInfo.pid, "SIGTERM");
@@ -347,7 +347,7 @@ async function terminateProcesses(processes: ManagedProcessSnapshot[]): Promise<
       continue;
     }
     console.error(
-      `[codex-keeper] Force killing stale ${processInfo.kind} process pid=${processInfo.pid}`,
+      `[session-keeper] Force killing stale ${processInfo.kind} process pid=${processInfo.pid}`,
     );
     try {
       process.kill(processInfo.pid, "SIGKILL");
@@ -434,7 +434,7 @@ async function ensureApi(baseUrlOverride?: string): Promise<{
         };
       }
       console.error(
-        `[codex-keeper] Skipping healthy API at ${baseUrl} because it is bound to ${apiCwd ?? "<unknown cwd>"}.`,
+        `[session-keeper] Skipping healthy API at ${baseUrl} because it is bound to ${apiCwd ?? "<unknown cwd>"}.`,
       );
     }
 
@@ -477,15 +477,15 @@ function withApiBaseArgs(mode: UiMode, passthrough: string[], apiBase: string): 
 async function main(): Promise<void> {
   const { mode, passthrough, explicitApiBase } = parseArgs(process.argv.slice(2));
   const repoCwd = process.cwd();
-  const webPort = process.env.CODEX_KEEPER_WEB_PORT ?? String(DEFAULT_WEB_PORT);
+  const webPort = process.env.SESSION_KEEPER_WEB_PORT ?? String(DEFAULT_WEB_PORT);
   const siblingRepoPath = detectSiblingRepoPath(repoCwd);
-  console.error(`[codex-keeper] Launch mode: ${mode}`);
-  console.error(`[codex-keeper] Repo cwd: ${repoCwd}`);
+  console.error(`[session-keeper] Launch mode: ${mode}`);
+  console.error(`[session-keeper] Repo cwd: ${repoCwd}`);
   if (mode === "web") {
-    console.error(`[codex-keeper] Requested web URL: http://127.0.0.1:${webPort}/`);
+    console.error(`[session-keeper] Requested web URL: http://127.0.0.1:${webPort}/`);
   }
   if (siblingRepoPath && (await pathExists(siblingRepoPath))) {
-    console.error(`[codex-keeper] Another same-name repo exists at: ${siblingRepoPath}`);
+    console.error(`[session-keeper] Another same-name repo exists at: ${siblingRepoPath}`);
   }
   await cleanupStaleManagedProcesses(mode, explicitApiBase);
   const api = await ensureApi(explicitApiBase);
@@ -499,23 +499,24 @@ async function main(): Promise<void> {
       env:
         mode === "web"
           ? {
-              CODEX_KEEPER_API_BASE: api.baseUrl,
-              CODEX_KEEPER_WEB_PORT: process.env.CODEX_KEEPER_WEB_PORT ?? String(DEFAULT_WEB_PORT),
+              SESSION_KEEPER_API_BASE: api.baseUrl,
+              SESSION_KEEPER_WEB_PORT:
+                process.env.SESSION_KEEPER_WEB_PORT ?? String(DEFAULT_WEB_PORT),
             }
           : {
-              CODEX_KEEPER_API_BASE: api.baseUrl,
+              SESSION_KEEPER_API_BASE: api.baseUrl,
             },
     },
   );
 
   if (api.reused) {
-    console.error(`[codex-keeper] Reusing API at ${api.baseUrl} for repo ${repoCwd}`);
+    console.error(`[session-keeper] Reusing API at ${api.baseUrl} for repo ${repoCwd}`);
   } else {
-    console.error(`[codex-keeper] Started API at ${api.baseUrl} for repo ${repoCwd}`);
+    console.error(`[session-keeper] Started API at ${api.baseUrl} for repo ${repoCwd}`);
   }
   if (mode === "web") {
     console.error(
-      `[codex-keeper] Launching web dev server on http://127.0.0.1:${webPort}/ via API ${api.baseUrl}`,
+      `[session-keeper] Launching web dev server on http://127.0.0.1:${webPort}/ via API ${api.baseUrl}`,
     );
   }
 
@@ -548,7 +549,7 @@ function isMainModule(): boolean {
 
 if (isMainModule()) {
   void main().catch((error) => {
-    console.error(`[codex-keeper] ${error instanceof Error ? error.message : String(error)}`);
+    console.error(`[session-keeper] ${error instanceof Error ? error.message : String(error)}`);
     process.exit(1);
   });
 }

@@ -10,10 +10,11 @@ import type {
   SessionIndexEntry,
   SessionListQuery,
   SessionRevision,
+  SessionSource,
   SessionStatusEstimate,
   SessionSummary,
   WorkspaceSummary,
-} from "@codex-keeper/shared";
+} from "@session-keeper/shared";
 import Database from "better-sqlite3";
 
 import { isDirtySinceRename } from "./revision.js";
@@ -22,6 +23,7 @@ import { workspaceIdForCwd, workspaceLabelForCwd } from "./util.js";
 type SessionRow = {
   thread_id: string;
   rollout_path: string;
+  source: string;
   cwd: string | null;
   project_name: string | null;
   created_at: string | null;
@@ -65,6 +67,7 @@ function toSummary(row: SessionRow): SessionSummary {
   const workspaceId = workspaceIdForCwd(row.cwd ?? undefined);
   return {
     threadId: row.thread_id,
+    source: (row.source as SessionSource) ?? "codex",
     cwd: row.cwd ?? undefined,
     projectName: row.project_name ?? undefined,
     workspaceId,
@@ -84,6 +87,7 @@ function toMaterializedSession(row: SessionRow): MaterializedSession {
   return {
     threadId: row.thread_id,
     rolloutPath: row.rollout_path,
+    source: (row.source as SessionSource) ?? "codex",
     cwd: row.cwd ?? undefined,
     projectName: row.project_name ?? undefined,
     createdAt: row.created_at ?? undefined,
@@ -125,6 +129,7 @@ export class StateDatabase {
       CREATE TABLE IF NOT EXISTS sessions (
         thread_id TEXT PRIMARY KEY,
         rollout_path TEXT NOT NULL,
+        source TEXT NOT NULL DEFAULT 'codex',
         cwd TEXT,
         project_name TEXT,
         created_at TEXT,
@@ -189,6 +194,7 @@ export class StateDatabase {
     this.ensureColumn("sessions", "archived_hint", "INTEGER NOT NULL DEFAULT 0");
     this.ensureColumn("sessions", "rollout_thread_name", "TEXT");
     this.ensureColumn("sessions", "rollout_thread_name_updated_at", "TEXT");
+    this.ensureColumn("sessions", "source", "TEXT NOT NULL DEFAULT 'codex'");
   }
 
   private ensureColumn(table: string, column: string, definition: string): void {
@@ -274,14 +280,15 @@ export class StateDatabase {
       this.db
         .prepare(
           `INSERT INTO sessions (
-            thread_id, rollout_path, cwd, project_name, created_at, updated_at,
+            thread_id, rollout_path, source, cwd, project_name, created_at, updated_at,
             model_provider, model, first_user_message, last_user_message,
             last_agent_message, task_complete_count, token_total,
             rollout_thread_name, rollout_thread_name_updated_at,
             latest_official_name, latest_official_name_updated_at, archived_hint
-          ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+          ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
           ON CONFLICT(thread_id) DO UPDATE SET
             rollout_path = excluded.rollout_path,
+            source = excluded.source,
             cwd = excluded.cwd,
             project_name = excluded.project_name,
             created_at = COALESCE(excluded.created_at, sessions.created_at),
@@ -308,6 +315,7 @@ export class StateDatabase {
         .run(
           session.threadId,
           session.rolloutPath,
+          session.source,
           session.cwd ?? null,
           session.projectName ?? null,
           session.createdAt ?? null,
@@ -505,6 +513,9 @@ export class StateDatabase {
     const search = query.search?.trim().toLowerCase();
     let items = rows.map(toSummary).filter((item) => {
       if (query.workspace && item.workspaceId !== query.workspace) {
+        return false;
+      }
+      if (query.source && item.source !== query.source) {
         return false;
       }
       if (!search) {

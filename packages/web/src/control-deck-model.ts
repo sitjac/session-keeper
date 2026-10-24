@@ -1,4 +1,4 @@
-import type { ApiEventRecord } from "@codex-keeper/shared";
+import type { ApiEventRecord } from "@session-keeper/shared";
 
 export type TabId = "sessions";
 export type UiNotice = {

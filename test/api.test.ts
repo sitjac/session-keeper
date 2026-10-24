@@ -1,7 +1,7 @@
 import fs from "node:fs/promises";
 import path from "node:path";
-import type { CodexTurnRunner } from "@codex-keeper/core";
-import { readSessionIndex } from "@codex-keeper/core";
+import type { CodexTurnRunner } from "@session-keeper/core";
+import { readSessionIndex } from "@session-keeper/core";
 import { afterEach, describe, expect, it } from "vitest";
 import { buildApiServer } from "../packages/api/src/app.ts";
 
@@ -26,7 +26,7 @@ afterEach(async () => {
 describe("local api", () => {
   it("creates an owned manager from explicit cwd and config path", async () => {
     const workspace = await createTempWorkspace();
-    const configPath = path.join(workspace.root, ".config", "codex-keeper", "config.toml");
+    const configPath = path.join(workspace.root, ".config", "session-keeper", "config.toml");
     await fs.mkdir(path.dirname(configPath), { recursive: true });
     await fs.writeFile(
       configPath,
@@ -127,7 +127,7 @@ describe("local api", () => {
     expect(renamed.json().name).toBe("Manual API title");
     expect(renamed.json().written).toBe(true);
 
-    const stateDb = await import("@codex-keeper/core").then((module) =>
+    const stateDb = await import("@session-keeper/core").then((module) =>
       module.readCodexThreadStateSnapshot(workspace.codexHome),
     );
     expect(stateDb.get("019d-api-rename")?.title).toBe("Old API title");

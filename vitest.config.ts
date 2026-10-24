@@ -4,8 +4,8 @@ import { defineConfig } from "vitest/config";
 export default defineConfig({
   resolve: {
     alias: {
-      "@codex-keeper/core": path.resolve("packages/core/src/index.ts"),
-      "@codex-keeper/shared": path.resolve("packages/shared/src/index.ts"),
+      "@session-keeper/core": path.resolve("packages/core/src/index.ts"),
+      "@session-keeper/shared": path.resolve("packages/shared/src/index.ts"),
     },
   },
   test: {

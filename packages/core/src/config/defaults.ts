@@ -1,9 +1,10 @@
-import type { EffectiveConfig } from "@codex-keeper/shared";
-import { DEFAULT_STATE_RELATIVE_PATH } from "@codex-keeper/shared";
+import type { EffectiveConfig } from "@session-keeper/shared";
+import { DEFAULT_STATE_RELATIVE_PATH } from "@session-keeper/shared";
 
 export const DEFAULT_CONFIG: EffectiveConfig = {
   general: {
     codexHome: "~/.codex",
+    claudeHome: "~/.claude",
     stateDir: `~/${DEFAULT_STATE_RELATIVE_PATH}`,
     uiLanguage: "zh-CN",
   },

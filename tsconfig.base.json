@@ -15,9 +15,9 @@
     "sourceMap": true,
     "composite": true,
     "paths": {
-      "@codex-keeper/api": ["./packages/api/src/index.ts"],
-      "@codex-keeper/shared": ["./packages/shared/src/index.ts"],
-      "@codex-keeper/core": ["./packages/core/src/index.ts"]
+      "@session-keeper/api": ["./packages/api/src/index.ts"],
+      "@session-keeper/shared": ["./packages/shared/src/index.ts"],
+      "@session-keeper/core": ["./packages/core/src/index.ts"]
     }
   }
 }

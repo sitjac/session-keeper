@@ -12,4 +12,4 @@ export type {
   SessionTranscriptPage,
   UiLanguage,
   WorkspaceSummary,
-} from "@codex-keeper/shared";
+} from "@session-keeper/shared";
