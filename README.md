@@ -9,11 +9,11 @@ A local-first session manager for browsing, renaming, and deleting **Codex** and
 
 ## Features
 
-- **Group sessions by workspace** — sessions are organized under collapsible workspaces instead of one flat list.
-- **Manual rename** — click a session title in the detail header to edit it; the UI refreshes immediately.
-- **Sync with Codex CLI** — renames are written back to Codex's session index and local state so `/resume` shows the same name.
-- **Sync with Claude CLI** — renames append an `ai-title` event to the session jsonl and update the `display` field in `history.jsonl`.
-- **Delete sessions** — removes the session and cleans up the local index/state on both the CLI and keeper sides.
+- **Group sessions by workspace** — sessions are organized under collapsible workspaces.
+- **Manual rename** — click a session title in the detail header to edit it.
+- **Sync with Codex CLI** — renames are written back to Codex's session index.
+- **Sync with Claude CLI** — renames append an `ai-title` event to the session jsonl.
+- **Delete sessions** — removes the session and cleans up the local index on both the CLI and keeper sides.
 - **Readable transcripts** — conversation content is organized by user input and assistant output.
 
 ## Getting Started
@@ -25,28 +25,28 @@ npm install
 npm run serve
 ```
 
-Then open <http://127.0.0.1:42110>. `npm run serve` builds the runtime and Web UI, then starts the local API server (bound to `127.0.0.1` by default).
+Then open <http://127.0.0.1:42110>. `npm run serve` builds the runtime and Web UI, then starts the local API server.
 
 ## Usage
 
 ```bash
-npm run serve                            # build + start the local server
-npm run web                              # start the Web UI dev server
-npm run api                              # start the API only
-npm run cli -- list                      # list sessions
-npm run cli -- list --source claude      # list Claude sessions only
-npm run cli -- show --id <threadId>      # show a session
-npm run cli -- rename --id <threadId> --name "New name"
+npm run serve                                              # build + start the local server
+npm run web                                                # start the Web UI dev server
+npm run api                                                # start the API only
+npm run cli -- list                                        # list sessions
+npm run cli -- list --source claude                        # list Claude sessions only
+npm run cli -- show --id <threadId>                        # show a session
+npm run cli -- rename --id <threadId> --name "New name"    # rename a session
 ```
 
 ## Development
 
 ```bash
-npm run lint          # ESLint/Biome, zero warnings allowed
-npm run build         # compile all TypeScript project references
-npm run web:build     # build the Vite dashboard
-npm test              # run the Vitest suite
-npm run validate:full # CI-equivalent check before pushing
+npm run lint           # ESLint/Biome, zero warnings allowed
+npm run build          # compile all TypeScript project references
+npm run web:build      # build the Vite dashboard
+npm test               # run the Vitest suite
+npm run validate:full  # CI-equivalent check before pushing
 ```
 
 ## Project Structure
@@ -64,7 +64,7 @@ scripts           development helper scripts
 
 ## Documentation
 
-See [`docs/`](docs/) for detailed writeback mechanics and the original Chinese README ([`docs/README.zh-CN.md`](docs/README.zh-CN.md)).
+See [`docs/`](docs/) for detailed writeback mechanics.
 
 ## License
 
