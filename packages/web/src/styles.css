@@ -393,15 +393,30 @@ pre {
 
 .session-row-main {
   min-width: 0;
-  height: 34px;
+  min-height: 34px;
   border: 0;
-  padding: 0 8px;
+  padding: 6px 8px;
   background: transparent;
   text-align: left;
   display: flex;
   align-items: center;
   gap: 6px;
   overflow: hidden;
+}
+
+.session-row-text {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.session-row-title-line {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
 }
 
 .session-row-title {
@@ -411,6 +426,24 @@ pre {
   text-overflow: ellipsis;
   white-space: nowrap;
   font-size: 14px;
+}
+
+.session-row-snippet {
+  display: block;
+  overflow: hidden;
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.4;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.session-row-snippet mark {
+  background: var(--accent-selected);
+  border-radius: 2px;
+  color: var(--text);
+  font-weight: 600;
+  padding: 0 1px;
 }
 
 .session-row-source,

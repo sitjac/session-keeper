@@ -3,7 +3,7 @@ import * as React from "react";
 import { sessionListTitle } from "../../browser-utils.js";
 import type { UiLanguage } from "../../i18n.js";
 import { t } from "../../i18n.js";
-import type { SessionSummary } from "../../types.js";
+import type { SessionSearchMatch, SessionSummary } from "../../types.js";
 import { addAppTransitionType } from "../../view-transitions.js";
 import {
   collapseAllWorkspaceIds,
@@ -15,6 +15,25 @@ import {
 const SESSION_CONTEXT_MENU_WIDTH = 220;
 const SESSION_CONTEXT_MENU_HEIGHT = 104;
 const SESSION_CONTEXT_MENU_MARGIN = 12;
+
+function renderSnippet(match: SessionSearchMatch): React.ReactNode {
+  if (match.ranges.length === 0) {
+    return match.snippet;
+  }
+  const nodes: React.ReactNode[] = [];
+  let cursor = 0;
+  match.ranges.forEach((range, index) => {
+    if (range.start > cursor) {
+      nodes.push(match.snippet.slice(cursor, range.start));
+    }
+    nodes.push(<mark key={`m-${index}`}>{match.snippet.slice(range.start, range.end)}</mark>);
+    cursor = range.end;
+  });
+  if (cursor < match.snippet.length) {
+    nodes.push(match.snippet.slice(cursor));
+  }
+  return nodes;
+}
 
 export function SessionListPane(props: {
   sessions: SessionSummary[];
@@ -410,9 +429,18 @@ export function SessionListPane(props: {
                       title={sessionListTitle(session)}
                       type="button"
                     >
-                      <span className="session-row-title">{sessionListTitle(session)}</span>
-                      <span className="session-row-source">
-                        {session.source === "claude" ? tt("sourceClaude") : tt("sourceCodex")}
+                      <span className="session-row-text">
+                        <span className="session-row-title-line">
+                          <span className="session-row-title">{sessionListTitle(session)}</span>
+                          <span className="session-row-source">
+                            {session.source === "claude" ? tt("sourceClaude") : tt("sourceCodex")}
+                          </span>
+                        </span>
+                        {session.searchMatch ? (
+                          <span className="session-row-snippet">
+                            {renderSnippet(session.searchMatch)}
+                          </span>
+                        ) : null}
                       </span>
                     </button>
                     <button

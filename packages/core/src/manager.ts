@@ -48,6 +48,7 @@ import {
   readSessionIndex,
   removeSessionIndexThread,
 } from "./session-index.js";
+import { searchSessionTranscript } from "./session-search.js";
 import { basenameSafe, toUtcIso } from "./util.js";
 
 const SCAN_FRESH_WINDOW_MS = 1_200;
@@ -417,12 +418,53 @@ export class SessionKeeper {
 
   async listSessions(query: SessionListQuery = {}): Promise<SessionSummary[]> {
     await this.scan();
-    return this.db.listSessions(query);
+    const search = query.search?.trim();
+    if (!search) {
+      return this.db.listSessions(query);
+    }
+
+    const candidates = this.db.listSessions({ ...query, search: undefined, limit: undefined });
+    const lowerSearch = search.toLowerCase();
+    const matches: SessionSummary[] = [];
+
+    for (const candidate of candidates) {
+      const metadataHit = [
+        candidate.officialName,
+        candidate.threadId,
+        candidate.cwd,
+        candidate.projectName,
+      ]
+        .filter((value): value is string => Boolean(value))
+        .some((value) => value.toLowerCase().includes(lowerSearch));
+
+      let searchMatch: SessionSummary["searchMatch"];
+      const detail = this.db.getSessionDetail(candidate.threadId);
+      if (detail) {
+        try {
+          const transcript = await this.readCachedSessionTranscript(
+            detail.rolloutPath,
+            detail.source,
+          );
+          searchMatch = searchSessionTranscript(transcript, search);
+        } catch {
+          searchMatch = undefined;
+        }
+      }
+
+      if (metadataHit || searchMatch) {
+        matches.push(searchMatch ? { ...candidate, searchMatch } : candidate);
+      }
+    }
+
+    if (typeof query.limit === "number") {
+      return matches.slice(0, query.limit);
+    }
+    return matches;
   }
 
   async listWorkspaces(query: SessionListQuery = {}): Promise<WorkspaceSummary[]> {
     await this.scan();
-    return this.db.listWorkspaceSummaries(query);
+    return this.db.listWorkspaceSummaries({ ...query, search: undefined });
   }
 
   async querySessions(query: SessionListQuery = {}): Promise<SessionsResponse> {

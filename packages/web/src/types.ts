@@ -5,6 +5,8 @@ export type {
   SessionDeleteResult,
   SessionDetail,
   SessionMessageResponse,
+  SessionSearchMatch,
+  SessionSearchMatchRange,
   SessionSummary,
   SessionsResponse,
   SessionTranscriptAttachment,
