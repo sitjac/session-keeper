@@ -78,6 +78,7 @@ export function App() {
           onSessionPaneWidthChange={paneLayout.handleSessionPaneWidthChange}
           onStartSessionResize={paneLayout.startSessionResize}
           onToggleThemeMode={theme.toggleThemeMode}
+          onToggleSessionPane={paneLayout.toggleSessionPane}
           search={state.search}
           selectedId={state.selectedId}
           sessionPaneCollapsed={paneLayout.sessionPaneCollapsed}

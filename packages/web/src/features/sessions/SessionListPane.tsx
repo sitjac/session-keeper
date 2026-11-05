@@ -26,6 +26,7 @@ export function SessionListPane(props: {
   uiLanguage: UiLanguage;
   onSearchChange: (value: string) => void;
   onRefresh: () => void;
+  onToggleSessionPane: () => void;
   onSelectSession: (threadId: string) => void;
   onCopySessionId: (threadId: string) => void | Promise<void>;
   onDeleteSession: (threadId: string) => boolean | Promise<boolean>;
@@ -274,6 +275,20 @@ export function SessionListPane(props: {
           </p>
         </div>
         <div className="header-actions">
+          <button
+            aria-controls="session-list-pane"
+            aria-expanded={!props.sessionPaneCollapsed}
+            aria-label={tt("collapseSessionPane")}
+            className="btn-icon session-pane-toggle"
+            onClick={props.onToggleSessionPane}
+            title={tt("collapseSessionPane")}
+            type="button"
+          >
+            <svg aria-hidden="true" className="session-pane-toggle-icon" viewBox="0 0 20 20">
+              <rect height="14" rx="2" width="16" x="2" y="3" />
+              <path d="M8 3v14M5 8l-2 2 2 2" />
+            </svg>
+          </button>
           <button
             className="btn-sm"
             disabled={!bulkActionState.canCollapseAll}
