@@ -71,18 +71,28 @@ function imageAttachments(content: unknown): SessionTranscriptAttachment[] {
     .filter((block) => block.type === "image")
     .map((block) => {
       const source = (block.source ?? {}) as Record<string, unknown>;
+      // Claude transcript 中图片有两种来源：
+      // 1. source.type === "base64"：source.data 是纯 base64 字符串（无 data: 前缀），
+      //    需要拼上 media_type 构造标准 data URL，否则 <img src> 无法识别。
+      // 2. source.url：已经是完整 URL（含 data: 或 http(s):），直接使用。
       const imageUrl =
-        typeof source.data === "string"
-          ? source.data
-          : typeof source.url === "string"
-            ? source.url
+        typeof source.url === "string" && source.url.length > 0
+          ? source.url
+          : typeof source.data === "string" && source.data.length > 0
+            ? source.data.startsWith("data:")
+              ? source.data
+              : `data:${typeof source.media_type === "string" && source.media_type.length > 0 ? source.media_type : "image/png"};base64,${source.data}`
             : undefined;
+      if (!imageUrl) {
+        return undefined;
+      }
       return {
         kind: "image" as const,
-        imageUrl: imageUrl ?? "",
+        imageUrl,
         ...(block.name ? { name: block.name } : {}),
       };
-    });
+    })
+    .filter((attachment): attachment is SessionTranscriptAttachment => Boolean(attachment));
 }
 
 function extractToolCalls(
