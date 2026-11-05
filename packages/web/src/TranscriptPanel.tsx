@@ -1,17 +1,28 @@
 import type { FormEvent, ReactNode } from "react";
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import { fetchSessionTranscript, sendSessionMessage } from "./api.js";
 import { transcriptTone } from "./browser-utils.js";
 import { copyTextToClipboard } from "./clipboard.js";
 import type { UiLanguage } from "./i18n.js";
 import { t, transcriptRoleLabel } from "./i18n.js";
-import type { SessionDetail, SessionTranscriptAttachment, SessionTranscriptPage } from "./types.js";
+import type {
+  SessionDetail,
+  SessionTranscriptAttachment,
+  SessionTranscriptEntry,
+  SessionTranscriptPage,
+} from "./types.js";
 
 const TRANSCRIPT_PAGE_SIZE = 30;
 const COPY_FEEDBACK_MS = 1_600;
 
 type CopyState = "copied" | "failed" | "idle";
+
+type MessageGroup = {
+  type: "thinking" | "response";
+  messages: SessionTranscriptEntry[];
+  id: string;
+};
 
 type MarkdownBlock =
   | { type: "blockquote"; lines: string[] }
@@ -472,19 +483,35 @@ function CopyableMarkdownBlock(props: {
   );
 }
 
+function cleanImageMarkers(content: string): string {
+  // Remove [Image #N] markers
+  let cleaned = content.replace(/\[Image #\d+\]/g, "");
+  // Remove [Image: source: ...] markers
+  cleaned = cleaned.replace(/\[Image: source: [^\]]+\]/g, "");
+  return cleaned.trim();
+}
+
 function MarkdownMessage(props: {
   attachments?: SessionTranscriptAttachment[];
   content: string;
   onPreviewAttachment: (attachment: SessionTranscriptAttachment) => void;
   uiLanguage: UiLanguage;
 }) {
-  const blocks = useMemo(() => parseMarkdownBlocks(props.content), [props.content]);
+  const cleanedContent = useMemo(() => cleanImageMarkers(props.content), [props.content]);
+  const blocks = useMemo(() => parseMarkdownBlocks(cleanedContent), [cleanedContent]);
+
+  // Don't render if no content and no attachments
+  if (!cleanedContent && !props.attachments?.length) {
+    return null;
+  }
 
   return (
     <div className="turn-body message-markdown">
-      <div className="message-markdown-content">
-        {blocks.map((block, index) => renderBlock(block, index, props.uiLanguage))}
-      </div>
+      {cleanedContent && (
+        <div className="message-markdown-content">
+          {blocks.map((block, index) => renderBlock(block, index, props.uiLanguage))}
+        </div>
+      )}
       {props.attachments?.length ? (
         <div className="message-attachments">
           {props.attachments.map((attachment, index) => (
@@ -497,9 +524,11 @@ function MarkdownMessage(props: {
           ))}
         </div>
       ) : null}
-      <div className="turn-footer">
-        <MessageCopyButton markdownContent={props.content} uiLanguage={props.uiLanguage} />
-      </div>
+      {cleanedContent && (
+        <div className="turn-footer">
+          <MessageCopyButton markdownContent={cleanedContent} uiLanguage={props.uiLanguage} />
+        </div>
+      )}
     </div>
   );
 }
@@ -605,6 +634,171 @@ function MessageCopyButton(props: { markdownContent: string; uiLanguage: UiLangu
   );
 }
 
+function groupMessages(items: SessionTranscriptEntry[]): MessageGroup[] {
+  const groups: MessageGroup[] = [];
+  let groupIndex = 0;
+  let i = 0;
+
+  while (i < items.length) {
+    const item = items[i];
+    if (!item) {
+      i++;
+      continue;
+    }
+
+    // User messages are always shown as response
+    if (item.role === "user") {
+      groups.push({
+        type: "response",
+        messages: [item],
+        id: `group-${groupIndex++}`,
+      });
+      i++;
+      continue;
+    }
+
+    // Collect consecutive assistant messages and tool calls
+    if (item.role === "assistant" || item.role === "tool") {
+      const turnMessages: SessionTranscriptEntry[] = [];
+      while (i < items.length && (items[i]?.role === "assistant" || items[i]?.role === "tool")) {
+        const msg = items[i];
+        if (msg) turnMessages.push(msg);
+        i++;
+      }
+
+      // Find the last assistant message (not tool call/output)
+      let lastAssistantIndex = -1;
+      for (let j = turnMessages.length - 1; j >= 0; j--) {
+        const msg = turnMessages[j];
+        if (msg?.role === "assistant" && msg.kind === "message") {
+          lastAssistantIndex = j;
+          break;
+        }
+      }
+
+      // If only one message total and it's an assistant message, show it directly
+      if (turnMessages.length === 1 && lastAssistantIndex === 0) {
+        groups.push({
+          type: "response",
+          messages: turnMessages,
+          id: `group-${groupIndex++}`,
+        });
+      } else if (lastAssistantIndex >= 0) {
+        // Multiple messages: fold everything except the last assistant message
+        const lastAssistantMessage = turnMessages[lastAssistantIndex];
+        const thinkingMessages = turnMessages.filter((_, index) => index !== lastAssistantIndex);
+
+        if (thinkingMessages.length > 0) {
+          groups.push({
+            type: "thinking",
+            messages: thinkingMessages,
+            id: `group-${groupIndex++}`,
+          });
+        }
+
+        if (lastAssistantMessage) {
+          groups.push({
+            type: "response",
+            messages: [lastAssistantMessage],
+            id: `group-${groupIndex++}`,
+          });
+        }
+      } else if (turnMessages.length > 0) {
+        // No assistant message, only tools - show all as thinking
+        groups.push({
+          type: "thinking",
+          messages: turnMessages,
+          id: `group-${groupIndex++}`,
+        });
+      }
+      continue;
+    }
+
+    i++;
+  }
+
+  return groups;
+}
+
+function formatToolContent(content: string): string {
+  try {
+    // Try to parse as JSON and format it
+    const parsed = JSON.parse(content);
+    return JSON.stringify(parsed, null, 2);
+  } catch {
+    // If not JSON, return as is
+    return content;
+  }
+}
+
+function ToolCallMessage(props: { item: SessionTranscriptEntry; uiLanguage: UiLanguage }) {
+  const isToolCall = props.item.kind === "tool_call";
+  const label = isToolCall
+    ? props.uiLanguage === "zh-CN"
+      ? "执行命令"
+      : "Tool Call"
+    : props.uiLanguage === "zh-CN"
+      ? "执行结果"
+      : "Tool Output";
+
+  const formattedContent = useMemo(
+    () => formatToolContent(props.item.content),
+    [props.item.content],
+  );
+
+  return (
+    <div className="tool-message">
+      <div className="tool-message-header">
+        <span className="tool-message-label">{label}</span>
+        {props.item.name && <span className="tool-message-name">{props.item.name}</span>}
+      </div>
+      <pre className="tool-message-content">{formattedContent}</pre>
+    </div>
+  );
+}
+
+function ThinkingChain(props: {
+  group: MessageGroup;
+  uiLanguage: UiLanguage;
+  onPreviewAttachment: (attachment: SessionTranscriptAttachment) => void;
+  expanded: boolean;
+  onToggle: () => void;
+}) {
+  const messageCount = props.group.messages.length;
+  const previewText = props.group.messages[0]?.content.slice(0, 100) || "";
+
+  return (
+    <div className="thinking-chain">
+      <button className="thinking-chain-header" onClick={props.onToggle} type="button">
+        <span className="thinking-chain-icon">{props.expanded ? "▼" : "▶"}</span>
+        <span className="thinking-chain-label">
+          {props.uiLanguage === "zh-CN" ? "思考过程" : "Thinking"} ({messageCount})
+        </span>
+        {!props.expanded && <span className="thinking-chain-preview">{previewText}...</span>}
+      </button>
+      {props.expanded && (
+        <div className="thinking-chain-content">
+          {props.group.messages.map((item) => {
+            if (item.kind === "tool_call" || item.kind === "tool_output") {
+              return <ToolCallMessage item={item} key={item.id} uiLanguage={props.uiLanguage} />;
+            }
+            return (
+              <article className="message-turn" data-role={item.role} key={item.id}>
+                <MarkdownMessage
+                  attachments={item.attachments}
+                  content={item.content}
+                  onPreviewAttachment={props.onPreviewAttachment}
+                  uiLanguage={props.uiLanguage}
+                />
+              </article>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
+}
+
 export function TranscriptPanel(props: {
   detail: SessionDetail;
   transcriptRefreshToken?: number;
@@ -620,6 +814,9 @@ export function TranscriptPanel(props: {
   const [reloadToken, setReloadToken] = useState(0);
   const [previewedAttachment, setPreviewedAttachment] =
     useState<SessionTranscriptAttachment | null>(null);
+  const [expandedGroups, setExpandedGroups] = useState<Set<string>>(new Set());
+  const messagesContainerRef = useRef<HTMLDivElement>(null);
+  const previousScrollHeightRef = useRef<number>(0);
 
   useEffect(() => {
     let active = true;
@@ -637,7 +834,15 @@ export function TranscriptPanel(props: {
           return;
         }
         setPageState(payload);
-        setItems(payload.items.filter((item) => item.kind === "message" && item.role !== "system"));
+        setItems(
+          payload.items.filter(
+            (item) =>
+              (item.kind === "message" ||
+                item.kind === "tool_call" ||
+                item.kind === "tool_output") &&
+              item.role !== "system",
+          ),
+        );
       })
       .catch((nextError) => {
         if (!active) {
@@ -658,9 +863,14 @@ export function TranscriptPanel(props: {
     };
   }, [props.detail.threadId, props.transcriptRefreshToken, reloadToken]);
 
-  const loadEarlier = async () => {
+  const loadEarlier = useCallback(async () => {
     if (!pageState?.hasMore || loading) {
       return;
+    }
+
+    // Save current scroll height before loading
+    if (messagesContainerRef.current) {
+      previousScrollHeightRef.current = messagesContainerRef.current.scrollHeight;
     }
 
     setLoading(true);
@@ -673,16 +883,21 @@ export function TranscriptPanel(props: {
         role: "all",
       });
       setItems((previous) => [
-        ...nextPage.items.filter((item) => item.kind === "message" && item.role !== "system"),
+        ...nextPage.items.filter(
+          (item) =>
+            (item.kind === "message" || item.kind === "tool_call" || item.kind === "tool_output") &&
+            item.role !== "system",
+        ),
         ...previous,
       ]);
       setPageState(nextPage);
     } catch (nextError) {
       setError(readableError(nextError, "Failed to load transcript"));
+      isLoadingEarlierRef.current = false;
     } finally {
       setLoading(false);
     }
-  };
+  }, [pageState, loading, props.detail.threadId]);
 
   const submitMessage = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -722,10 +937,78 @@ export function TranscriptPanel(props: {
   const totalShown = items.length;
   const hiddenOlderCount = Math.max(0, (pageState?.totalItems ?? 0) - totalShown);
   const tt = (key: Parameters<typeof t>[1]) => t(props.uiLanguage, key);
+  const messageGroups = useMemo(() => groupMessages(items), [items]);
+  const isLoadingEarlierRef = useRef(false);
+
+  const toggleGroup = useCallback((groupId: string) => {
+    setExpandedGroups((previous) => {
+      const next = new Set(previous);
+      if (next.has(groupId)) {
+        next.delete(groupId);
+      } else {
+        next.add(groupId);
+      }
+      return next;
+    });
+  }, []);
+
+  // Restore scroll position after loading earlier messages
+  useEffect(() => {
+    if (messagesContainerRef.current && previousScrollHeightRef.current > 0) {
+      const container = messagesContainerRef.current;
+      const newScrollHeight = container.scrollHeight;
+      const scrollDiff = newScrollHeight - previousScrollHeightRef.current;
+
+      // Use requestAnimationFrame to ensure DOM has updated
+      requestAnimationFrame(() => {
+        container.scrollTop = scrollDiff;
+        previousScrollHeightRef.current = 0;
+        isLoadingEarlierRef.current = false;
+      });
+    }
+  }, [items]);
+
+  // Handle scroll to top for auto-loading with debounce
+  useEffect(() => {
+    const container = messagesContainerRef.current;
+    if (!container) return;
+
+    let scrollTimer: number | undefined;
+
+    const onScroll = () => {
+      // Clear previous timer
+      if (scrollTimer !== undefined) {
+        window.clearTimeout(scrollTimer);
+      }
+
+      // Debounce scroll event
+      scrollTimer = window.setTimeout(() => {
+        if (isLoadingEarlierRef.current || loading || !pageState?.hasMore) {
+          return;
+        }
+
+        const { scrollTop } = container;
+        // Trigger load when scrolled very close to top (within 50px)
+        if (scrollTop < 50 && scrollTop >= 0) {
+          isLoadingEarlierRef.current = true;
+          void loadEarlier();
+        }
+      }, 150);
+    };
+
+    container.addEventListener("scroll", onScroll, { passive: true });
+
+    return () => {
+      container.removeEventListener("scroll", onScroll);
+      if (scrollTimer !== undefined) {
+        window.clearTimeout(scrollTimer);
+      }
+    };
+  }, [loading, pageState?.hasMore, loadEarlier]);
 
   return (
     <section className="chat-view-shell">
-      <div className="chat-messages">
+      <div className="chat-messages" ref={messagesContainerRef}>
         {pageState?.hasMore ? (
           <div className="load-more">
             <button className="btn-sm" onClick={() => void loadEarlier()} type="button">
@@ -742,23 +1025,38 @@ export function TranscriptPanel(props: {
         ) : null}
 
         <div className="messages-container">
-          {items.map((item) => (
-            <article className="message-turn" data-role={item.role} key={item.id}>
-              <div className="turn-header">
-                <div className="turn-header-left">
-                  <span className={`message-role ${transcriptTone(item.role)}`}>
-                    {transcriptRoleLabel(item.role, props.uiLanguage)}
-                  </span>
+          {messageGroups.map((group) => {
+            if (group.type === "thinking") {
+              return (
+                <ThinkingChain
+                  expanded={expandedGroups.has(group.id)}
+                  group={group}
+                  key={group.id}
+                  onPreviewAttachment={setPreviewedAttachment}
+                  onToggle={() => toggleGroup(group.id)}
+                  uiLanguage={props.uiLanguage}
+                />
+              );
+            }
+
+            return group.messages.map((item) => (
+              <article className="message-turn" data-role={item.role} key={item.id}>
+                <div className="turn-header">
+                  <div className="turn-header-left">
+                    <span className={`message-role ${transcriptTone(item.role)}`}>
+                      {transcriptRoleLabel(item.role, props.uiLanguage)}
+                    </span>
+                  </div>
                 </div>
-              </div>
-              <MarkdownMessage
-                attachments={item.attachments}
-                content={item.content}
-                onPreviewAttachment={setPreviewedAttachment}
-                uiLanguage={props.uiLanguage}
-              />
-            </article>
-          ))}
+                <MarkdownMessage
+                  attachments={item.attachments}
+                  content={item.content}
+                  onPreviewAttachment={setPreviewedAttachment}
+                  uiLanguage={props.uiLanguage}
+                />
+              </article>
+            ));
+          })}
         </div>
       </div>
 
