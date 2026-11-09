@@ -36,6 +36,7 @@ export function SessionBrowser(props: {
   onExitFocusMode: () => void;
   onConversationSettled: () => void | Promise<void>;
   onToggleThemeMode: () => void;
+  onToggleSessionPane: () => void;
   onSessionPaneWidthChange: (delta: number) => void;
   onStartSessionResize: (event: React.PointerEvent<HTMLDivElement>) => void;
   onRename: (name: string) => boolean | Promise<boolean>;
@@ -91,6 +92,7 @@ export function SessionBrowser(props: {
         onRefresh={props.onRefresh}
         onSearchChange={props.onSearchChange}
         onSelectSession={props.onSelectSession}
+        onToggleSessionPane={props.onToggleSessionPane}
         search={props.search}
         selectedId={props.selectedId}
         sessionPaneCollapsed={props.sessionPaneCollapsed}
@@ -115,6 +117,24 @@ export function SessionBrowser(props: {
       ) : null}
 
       <section className="chat-view">
+        {props.sessionPaneCollapsed && !props.focusMode && !props.detail ? (
+          <header className="view-header collapsed-session-header">
+            <button
+              aria-controls="session-list-pane"
+              aria-expanded={false}
+              aria-label={tt("expandSessionPane")}
+              className="btn-icon session-pane-toggle"
+              onClick={props.onToggleSessionPane}
+              title={tt("expandSessionPane")}
+              type="button"
+            >
+              <svg aria-hidden="true" className="session-pane-toggle-icon" viewBox="0 0 20 20">
+                <rect height="14" rx="2" width="16" x="2" y="3" />
+                <path d="M8 3v14M3 8l2 2-2 2" />
+              </svg>
+            </button>
+          </header>
+        ) : null}
         {props.detail ? (
           <AppViewTransition
             default="none"
@@ -130,7 +150,9 @@ export function SessionBrowser(props: {
                 focusMode={props.focusMode}
                 onExitFocusMode={props.onExitFocusMode}
                 onRename={props.onRename}
+                onToggleSessionPane={props.onToggleSessionPane}
                 onToggleThemeMode={props.onToggleThemeMode}
+                sessionPaneCollapsed={props.sessionPaneCollapsed}
                 tt={tt}
                 themeMode={props.themeMode}
                 uiLanguage={props.uiLanguage}

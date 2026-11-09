@@ -166,6 +166,88 @@ describe("parseClaudeTranscript", () => {
     // 不能把换行压成空格，否则 markdown 代码块/列表会混成一团。
     expect(assistant?.content).not.toContain("- 第一点 - 第二点");
   });
+
+  it("converts base64 image blocks into data URLs so the web UI can render them", () => {
+    // Claude transcript 的 image block 形如：
+    // { type: "image", source: { type: "base64", media_type: "image/png", data: "<base64>" } }
+    // 直接拿 source.data 当 <img src> 是渲染不出来的，必须拼成 data: URL。
+    const base64Payload =
+      "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+aFioAAAAASUVORK5CYII=";
+    const raw =
+      [
+        JSON.stringify({
+          type: "user",
+          message: {
+            role: "user",
+            content: [
+              { type: "text", text: "看这张图 [Image #1]" },
+              {
+                type: "image",
+                source: {
+                  type: "base64",
+                  media_type: "image/png",
+                  data: base64Payload,
+                },
+              },
+            ],
+          },
+          timestamp: "2026-10-22T09:05:12.630Z",
+        }),
+      ].join("\n") + "\n";
+
+    const transcript = parseClaudeTranscript(raw);
+    const userEntry = transcript.items.find((i) => i.role === "user");
+    expect(userEntry?.attachments).toHaveLength(1);
+    expect(userEntry?.attachments?.[0].kind).toBe("image");
+    expect(userEntry?.attachments?.[0].imageUrl).toBe(`data:image/png;base64,${base64Payload}`);
+  });
+
+  it("passes through image blocks that already carry a url", () => {
+    const raw =
+      [
+        JSON.stringify({
+          type: "user",
+          message: {
+            role: "user",
+            content: [
+              {
+                type: "image",
+                source: { type: "url", url: "https://example.com/pic.png" },
+              },
+            ],
+          },
+          timestamp: "2026-10-22T09:05:12.630Z",
+        }),
+      ].join("\n") + "\n";
+
+    const transcript = parseClaudeTranscript(raw);
+    const userEntry = transcript.items.find((i) => i.role === "user");
+    expect(userEntry?.attachments?.[0].imageUrl).toBe("https://example.com/pic.png");
+  });
+
+  it("does not double-prefix data URLs that are already well formed", () => {
+    const existing = "data:image/jpeg;base64,/9j/4AAQSkZJRg==";
+    const raw =
+      [
+        JSON.stringify({
+          type: "user",
+          message: {
+            role: "user",
+            content: [
+              {
+                type: "image",
+                source: { type: "base64", media_type: "image/jpeg", data: existing },
+              },
+            ],
+          },
+          timestamp: "2026-10-22T09:05:12.630Z",
+        }),
+      ].join("\n") + "\n";
+
+    const transcript = parseClaudeTranscript(raw);
+    const userEntry = transcript.items.find((i) => i.role === "user");
+    expect(userEntry?.attachments?.[0].imageUrl).toBe(existing);
+  });
 });
 
 describe("claude writeback", () => {

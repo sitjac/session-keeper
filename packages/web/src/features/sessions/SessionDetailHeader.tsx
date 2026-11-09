@@ -7,12 +7,14 @@ import type { SessionDetail } from "../../types.js";
 export function SessionDetailHeader(props: {
   detail: SessionDetail;
   focusMode: boolean;
+  sessionPaneCollapsed: boolean;
   actioning: boolean;
   actionLabel: string | null;
   themeMode: ThemeMode;
   uiLanguage: "en-US" | "zh-CN";
   tt: (key: Parameters<typeof t>[1]) => string;
   onExitFocusMode: () => void;
+  onToggleSessionPane: () => void;
   onToggleThemeMode: () => void;
   onRename: (name: string) => boolean | Promise<boolean>;
 }) {
@@ -56,6 +58,22 @@ export function SessionDetailHeader(props: {
   return (
     <header className="view-header chat-header">
       <div className="chat-title-wrap">
+        {props.sessionPaneCollapsed && !props.focusMode ? (
+          <button
+            aria-controls="session-list-pane"
+            aria-expanded={false}
+            aria-label={props.tt("expandSessionPane")}
+            className="btn-icon session-pane-toggle"
+            onClick={props.onToggleSessionPane}
+            title={props.tt("expandSessionPane")}
+            type="button"
+          >
+            <svg aria-hidden="true" className="session-pane-toggle-icon" viewBox="0 0 20 20">
+              <rect height="14" rx="2" width="16" x="2" y="3" />
+              <path d="M8 3v14M3 8l2 2-2 2" />
+            </svg>
+          </button>
+        ) : null}
         {props.focusMode ? (
           <button className="btn-sm chat-back-btn" onClick={props.onExitFocusMode} type="button">
             ← {props.tt("back")}

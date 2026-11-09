@@ -240,6 +240,19 @@ export interface RenameHistoryRecord {
   operator?: string;
 }
 
+export interface SessionSearchMatchRange {
+  start: number;
+  end: number;
+}
+
+export interface SessionSearchMatch {
+  entryId: string;
+  role: SessionTranscriptRole;
+  timestamp?: string;
+  snippet: string;
+  ranges: SessionSearchMatchRange[];
+}
+
 export interface SessionSummary {
   threadId: string;
   source: SessionSource;
@@ -255,6 +268,7 @@ export interface SessionSummary {
   model?: string;
   lastAppliedSource?: RenameSource;
   statusEstimate?: SessionStatusEstimate;
+  searchMatch?: SessionSearchMatch;
 }
 
 export interface SessionDetail extends SessionSummary {

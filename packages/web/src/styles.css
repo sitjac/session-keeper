@@ -137,12 +137,9 @@ pre {
   min-height: 0;
 }
 
-.history-layout.session-pane-collapsed {
-  grid-template-columns: 0 0 minmax(0, 1fr);
-}
-
+.history-layout.session-pane-collapsed,
 .history-layout.session-focus-mode {
-  grid-template-columns: 0 0 minmax(0, 1fr);
+  grid-template-columns: minmax(0, 1fr);
 }
 
 .session-list-view {
@@ -231,6 +228,26 @@ pre {
 .session-list-header .header-actions {
   flex-wrap: wrap;
   justify-content: flex-end;
+}
+
+.session-pane-toggle {
+  flex: none;
+}
+
+.session-pane-toggle-icon {
+  width: 18px;
+  height: 18px;
+  fill: none;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 1.5;
+}
+
+.collapsed-session-header {
+  display: flex;
+  align-items: center;
+  flex: none;
 }
 
 .btn-sm,
@@ -376,15 +393,30 @@ pre {
 
 .session-row-main {
   min-width: 0;
-  height: 34px;
+  min-height: 34px;
   border: 0;
-  padding: 0 8px;
+  padding: 6px 8px;
   background: transparent;
   text-align: left;
   display: flex;
   align-items: center;
   gap: 6px;
   overflow: hidden;
+}
+
+.session-row-text {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.session-row-title-line {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
 }
 
 .session-row-title {
@@ -394,6 +426,24 @@ pre {
   text-overflow: ellipsis;
   white-space: nowrap;
   font-size: 14px;
+}
+
+.session-row-snippet {
+  display: block;
+  overflow: hidden;
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.4;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.session-row-snippet mark {
+  background: var(--accent-selected);
+  border-radius: 2px;
+  color: var(--text);
+  font-weight: 600;
+  padding: 0 1px;
 }
 
 .session-row-source,
@@ -457,6 +507,7 @@ pre {
 }
 
 .chat-view {
+  position: relative;
   min-width: 0;
   min-height: 0;
   display: flex;
@@ -1098,4 +1149,122 @@ pre {
   .chat-send-button {
     justify-self: end;
   }
+}
+
+.thinking-chain {
+  max-width: min(760px, 100%);
+  margin: 8px 0;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--panel-muted);
+  overflow: hidden;
+}
+
+.thinking-chain-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 10px 14px;
+  border: 0;
+  background: transparent;
+  color: var(--text);
+  font-size: 13px;
+  text-align: left;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.thinking-chain-header:hover {
+  background: color-mix(in srgb, var(--panel) 50%, transparent);
+}
+
+.thinking-chain-icon {
+  flex: 0 0 auto;
+  font-size: 10px;
+  color: var(--muted);
+  transition: transform 0.15s ease;
+}
+
+.thinking-chain-label {
+  flex: 0 0 auto;
+  font-weight: 500;
+  color: var(--muted);
+}
+
+.thinking-chain-preview {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--muted);
+  opacity: 0.7;
+  font-size: 12px;
+}
+
+.thinking-chain-content {
+  padding: 8px 14px 14px;
+  border-top: 1px solid var(--border);
+  background: var(--panel);
+}
+
+.thinking-chain-content .message-turn {
+  margin-bottom: 12px;
+}
+
+.thinking-chain-content .message-turn:last-child {
+  margin-bottom: 0;
+}
+
+.thinking-chain-content .turn-body {
+  background: var(--panel-muted);
+  font-size: 13px;
+  opacity: 0.9;
+}
+
+.tool-message {
+  margin-bottom: 12px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--panel);
+  overflow: hidden;
+}
+
+.tool-message:last-child {
+  margin-bottom: 0;
+}
+
+.tool-message-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 10px;
+  background: var(--panel-muted);
+  border-bottom: 1px solid var(--border);
+  font-size: 11px;
+  font-weight: 500;
+}
+
+.tool-message-label {
+  color: var(--muted);
+}
+
+.tool-message-name {
+  color: var(--accent);
+  font-family: monospace;
+}
+
+.tool-message-content {
+  margin: 0;
+  padding: 10px;
+  font-size: 12px;
+  line-height: 1.5;
+  font-family: monospace;
+  white-space: pre-wrap;
+  word-break: break-all;
+  max-height: 300px;
+  overflow-y: auto;
+  color: var(--text);
+  background: var(--panel);
 }
